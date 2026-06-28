@@ -35,7 +35,7 @@ class Robot_pca(Pca):
             'leg' : tuple(range(6, count_servo))
         }
         self.count_servo = count_servo
-        self.centers = (1500) * count_servo
+        self.centers = [1500] * count_servo
 
     def define_servo(self):
         """Определение сервопривода."""
@@ -57,15 +57,24 @@ class Robot_pca(Pca):
         """Калибровка серво."""
         try:
             with open('calibration.csv', mode='r') as file:
-                self.data = tuple(int(x) for x in list(csv.reader(file))[0])
-            if len(self.data) != 16: raise FileNotFoundError
-            print(self.data)
+                self.centers = list(int(x) for x in list(csv.reader(file))[0])
+            if len(self.centers) != 16: raise FileNotFoundError
+            print(self.centers)
 
         except FileNotFoundError:
             for i in range(16):
-                pass
+                self.servo_run(self.body.values[i], 1500)
+                value = input("Середина сервопривода(мс). Для сохранения (-1). __")
+                while value != '-1':
+                    try:
+                        value = int(value)
+                        self.servo_run(self.body.values[i], value)
+                        self.centers[i] = value
+                        value = input("Середина сервопривода(мс). Для сохранения (-1). __")
+                    except ValueError:
+                        print('Введите число')
+
             with open('calibration.csv', mode='w', newline='') as file:
                 writer = csv.writer(file)
-                writer.writerow(data)
+                writer.writerow(self.centers)
                 
-

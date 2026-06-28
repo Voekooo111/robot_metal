@@ -64,6 +64,3 @@ class Pca:
         if self.i2c_handle is not None:
             lgpio.i2c_close(self.i2c_handle)
             self.i2c_handle = None
-
-    
-
