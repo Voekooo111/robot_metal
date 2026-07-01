@@ -1,4 +1,4 @@
-from . import Pca
+from .pca9685 import Pca
 import csv
 import lgpio
 import time
@@ -14,12 +14,12 @@ class Robot_pca(Pca):
     """
     def __init__(self, pin_bus_address: tuple = (1, 0x40), freq: int = 50, count_servo: int = 16):
         super().__init__(pin_bus_address, freq)
-        self.body: dict[str, int | None | tuple] = {
+        self.body: dict[str, int | None] = {
             'hand_left_0': None,
             'hand_left_1': None,
             'hand_left_2': None,
-            'hand_rigth_0': None,
-            'hand_rigth_1': None,
+            'hand_right_0': None,
+            'hand_right_1': None,
             'hand_right_2': None,
             'leg_left_0' : None,
             'leg_left_1' : None,
@@ -31,6 +31,8 @@ class Robot_pca(Pca):
             'leg_right_2' : None,
             'leg_right_3' : None,
             'leg_right_4' : None,
+        }
+        self.bodypart: dict[str, None | tuple] = {
             'hand' : tuple(range(6)), 
             'leg' : tuple(range(6, count_servo))
         }
@@ -58,17 +60,17 @@ class Robot_pca(Pca):
         try:
             with open('calibration.csv', mode='r') as file:
                 self.centers = list(int(x) for x in list(csv.reader(file))[0])
-            if len(self.centers) != 16: raise FileNotFoundError
+            if len(self.centers) != self.count_servo: raise FileNotFoundError
             print(self.centers)
 
         except FileNotFoundError:
-            for i in range(16):
-                self.servo_run(self.body.values[i], 1500)
+            for i in range(self.count_servo):
+                self.servo_run(list(self.body.values())[i], 1500)
                 value = input("Середина сервопривода(мс). Для сохранения (-1). __")
                 while value != '-1':
                     try:
                         value = int(value)
-                        self.servo_run(self.body.values[i], value)
+                        self.servo_run(list(self.body.values())[i], value)
                         self.centers[i] = value
                         value = input("Середина сервопривода(мс). Для сохранения (-1). __")
                     except ValueError:
