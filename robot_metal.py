@@ -1,5 +1,10 @@
 from servo_iv import Pca
+from servo_iv import Robot_pca
+import time
 
 
-robot = Pca()
-robot.servo_run(0, 1200)
+robot = Robot_pca()
+robot.define_servo()
+robot.calibrate()
+robot.stand()
+robot.close()

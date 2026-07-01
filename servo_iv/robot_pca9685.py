@@ -2,6 +2,7 @@ from .pca9685 import Pca
 import csv
 import lgpio
 import time
+import pickle
 
 class Robot_pca(Pca):
     """
@@ -41,19 +42,29 @@ class Robot_pca(Pca):
 
     def define_servo(self):
         """Определение сервопривода."""
-        for i in range(self.count_servo):
-            self.servo_run(i, 1500)
-            time.sleep(1)
-            self.servo_run(i, 1300)
-            time.sleep(1)
-            self.servo_run(i, 1800)
-            time.sleep(1)
-            flag_input = True
-            while flag_input:
-                inp = input("Какая часть робота? _")
-                if inp in self.body.keys():
-                    flag_input = False
-                    self.body[inp] = i
+        try:
+            with open('define.pkl', mode='rb') as file:
+                self.body = pickle.load(file)
+
+        except FileNotFoundError:
+            for i in range(self.count_servo):
+                self.servo_run(i, 1500)
+                time.sleep(1)
+                self.servo_run(i, 1300)
+                time.sleep(1)
+                self.servo_run(i, 1800)
+                time.sleep(1)
+                self.servo_stop(i)
+                flag_input = True
+                while flag_input:
+                    inp = input("Какая часть робота? _")
+                    if inp in self.body.keys():
+                        flag_input = False
+                        self.body[inp] = i
+                    print("Попробуйте снова.")
+            with open('define.pkl', mode='wb') as file:
+                pickle.dump(self.body, file)
+
     
     def calibrate(self):
         """Калибровка серво."""
@@ -66,6 +77,8 @@ class Robot_pca(Pca):
         except FileNotFoundError:
             for i in range(self.count_servo):
                 self.servo_run(list(self.body.values())[i], 1500)
+                time.sleep(0.2)
+            for i in range(self.count_servo):
                 value = input("Середина сервопривода(мс). Для сохранения (-1). __")
                 while value != '-1':
                     try:
@@ -75,8 +88,20 @@ class Robot_pca(Pca):
                         value = input("Середина сервопривода(мс). Для сохранения (-1). __")
                     except ValueError:
                         print('Введите число')
+                
+            for i in range(self.count_servo):
+                self.servo_stop(list(self.body.values())[i])
+                time.sleep(0.2)
 
             with open('calibration.csv', mode='w', newline='') as file:
                 writer = csv.writer(file)
                 writer.writerow(self.centers)
-                
+
+
+    def stand(self):
+        for i in range(self.count_servo):
+            self.servo_run(i, self.centers[i])     
+        time.sleep(5)
+        for i in range(self.count_servo):
+            self.servo_stop(i)         
+
