@@ -66,3 +66,8 @@ class Pca:
             self.i2c_handle = None
 
     
+if __name__ == "__main__":
+    pca = Pca()
+    print("pca подключен")
+    pca.servo_run(0, 1000)
+    
