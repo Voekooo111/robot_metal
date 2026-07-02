@@ -110,10 +110,14 @@ class Robot_pca(Pca):
                 writer.writerow(self.centers)
 
 
+    def stop_all(self):
+        for i in range(self.count_servo):
+            self.servo_stop(i)
+            time.sleep(0.1)
+
+
     def stand(self):
         """Робот запускает все сервоприводы"""
         for i in range(self.count_servo):
             self.servo_run(i, self.centers[i])     
-        time.sleep(5)
-        for i in range(self.count_servo):
-            self.servo_stop(i)         
+            time.sleep(0.1)

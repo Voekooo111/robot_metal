@@ -1,4 +1,4 @@
-from servo_iv import robot, Site
+from servo_iv import Site, robot
 import signal
 import sys
 
