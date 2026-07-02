@@ -141,6 +141,7 @@ class Site:
         self.messages.append("Готов к калибровке. Введите число")
 
     def run(self):
+        """Запуск сайта"""
         self.app.run(host="0.0.0.0", port=5000, debug=True)
 
 if __name__ == "__main__":
