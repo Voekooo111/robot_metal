@@ -39,6 +39,10 @@ class Robot_pca(Pca):
         }
         self.count_servo = count_servo
         self.centers = [1500] * count_servo
+    
+    def class_start(self):
+        self.define_servo()
+        self.calibrate()
 
     def define_servo(self):
         """Определение сервопривода."""
@@ -66,32 +70,40 @@ class Robot_pca(Pca):
                 pickle.dump(self.body, file)
 
     
-    def calibrate(self):
-        """Калибровка серво."""
+    def calibrate(self, skip_calibration=True):
+        """
+        Калибровка серво.
+        
+        Args:
+            skip_calibration (по умолчанию True) при True - только считывает данные с файла.
+        """
         try:
             with open('calibration.csv', mode='r') as file:
                 self.centers = list(int(x) for x in list(csv.reader(file))[0])
-            if len(self.centers) != self.count_servo: raise FileNotFoundError
+            if len(self.centers) != self.count_servo: 
+                raise FileNotFoundError
             print(self.centers)
 
         except FileNotFoundError:
-            for i in range(self.count_servo):
-                self.servo_run(list(self.body.values())[i], 1500)
-                time.sleep(0.2)
-            for i in range(self.count_servo):
-                value = input("Середина сервопривода(мс). Для сохранения (-1). __")
-                while value != '-1':
-                    try:
-                        value = int(value)
-                        self.servo_run(list(self.body.values())[i], value)
-                        self.centers[i] = value
-                        value = input("Середина сервопривода(мс). Для сохранения (-1). __")
-                    except ValueError:
-                        print('Введите число')
-                
-            for i in range(self.count_servo):
-                self.servo_stop(list(self.body.values())[i])
-                time.sleep(0.2)
+            if not skip_calibration:
+                for i in range(self.count_servo):
+                    self.servo_run(list(self.body.values())[i], 1500)
+                    time.sleep(0.2)
+
+                for i in range(self.count_servo):
+                    value = input("Середина сервопривода(мс). Для сохранения (-1). __")
+                    while value != '-1':
+                        try:
+                            value = int(value)
+                            self.servo_run(list(self.body.values())[i], value)
+                            self.centers[i] = value
+                            value = input("Середина сервопривода(мс). Для сохранения (-1). __")
+                        except (ValueError, TypeError):
+                            print('Введите число')
+                            
+                for i in range(self.count_servo):
+                    self.servo_stop(list(self.body.values())[i])
+                    time.sleep(0.2)
 
             with open('calibration.csv', mode='w', newline='') as file:
                 writer = csv.writer(file)
@@ -104,4 +116,3 @@ class Robot_pca(Pca):
         time.sleep(5)
         for i in range(self.count_servo):
             self.servo_stop(i)         
-
