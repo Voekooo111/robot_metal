@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
@@ -11,43 +11,86 @@
 <form method="POST">
 
 <div class="grid">
-  <div class="chat">
-    <div class="message" id="messages">
-      {% for m in message %}
-        <div class="msg">{{ m }}</div>
-      {% endfor %}
-    </div>
-    <div class="input">
-      <input id="chatInput" type="text" name="text" placeholder="Type..." autocomplete="off"/>
-    </div>
-  </div>
 
-  <div class="image">
-    <img src="{{ url_for('static', filename='Robot_ph.png') }}" />
-  </div>
+    <div class="chat">
+        <div class="message" id="messages">
+            {% for m in message %}
+                <div class="msg">{{ m }}</div>
+            {% endfor %}
+        </div>
 
-  <div class="buttons">
-    {% for btn in buttons %}
-      <button type="submit" name="button_click" value="{{ btn }}">
-        {{ btn }}
-      </button>
-    {% endfor %}
-  </div>
+        <div class="input">
+            <input id="chatInput"
+                   type="text"
+                   name="text"
+                   placeholder="Type..."
+                   autocomplete="off">
+        </div>
+    </div>
+
+    <div class="image">
+
+        <img src="{{ url_for('static', filename='Robot_ph.png') }}"
+             usemap="#image-map">
+
+        <map name="image-map">
+
+            <area href="/?area=hand_r_0" title="hand_r_0" coords="80,298,224,206" shape="rect">
+            <area href="/?area=hand_r_1" title="hand_r_1" coords="294,282,438,194" shape="rect">
+            <area href="/?area=hand_r_2" title="hand_r_2" coords="493,266,594,118" shape="rect">
+
+            <area href="/?area=hand_l_0" title="hand_l_0" coords="1069,200,1204,292" shape="rect">
+            <area href="/?area=hand_l_1" title="hand_l_1" coords="834,278,982,198" shape="rect">
+            <area href="/?area=hand_l_2" title="hand_l_2" coords="696,261,803,132" shape="rect">
+
+            <area href="/?area=leg_r_0" title="leg_r_0" coords="492,997,622,1071" shape="rect">
+            <area href="/?area=leg_r_1" title="leg_r_1" coords="495,973,604,902" shape="rect">
+            <area href="/?area=leg_r_2" title="leg_r_2" coords="507,849,595,703" shape="rect">
+            <area href="/?area=leg_r_3" title="leg_r_3" coords="597,546,499,694" shape="rect">
+            <area href="/?area=leg_r_4" title="leg_r_4" coords="492,454,624,372" shape="rect">
+
+            <area href="/?area=leg_l_0" title="leg_l_0" coords="663,1069,789,998" shape="rect">
+            <area href="/?area=leg_l_1" title="leg_l_1" coords="678,965,786,901" shape="rect">
+            <area href="/?area=leg_l_2" title="leg_l_2" coords="680,836,776,701" shape="rect">
+            <area href="/?area=leg_l_3" title="leg_l_3" coords="681,689,775,542" shape="rect">
+            <area href="/?area=leg_l_4" title="leg_l_4" coords="796,370,664,459" shape="rect">
+
+            <area href="/?area=hand" title="head" coords="610,132,669,5" shape="rect">
+
+        </map>
+
+    </div>
+
+    <div class="buttons">
+        {% for btn in buttons %}
+        <button type="submit"
+                name="button_click"
+                value="{{ btn }}">
+            {{ btn }}
+        </button>
+        {% endfor %}
+    </div>
+
 </div>
 
 </form>
 
 <script>
-  function scrollDown() {
+function scrollDown() {
     const box = document.getElementById("messages");
-    box.scrollTo({ top: box.scrollHeight });
-  }
+    box.scrollTop = box.scrollHeight;
+}
 
-  window.addEventListener("load", () => {
+window.onload = function() {
     scrollDown();
     document.getElementById("chatInput").focus();
-  });
+}
 </script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/image-map-resizer/1.0.10/js/imageMapResizer.min.js"></script>
+<script>
+window.onload = function() {
+    imageMapResize();
+};
+</script>
 </body>
 </html>

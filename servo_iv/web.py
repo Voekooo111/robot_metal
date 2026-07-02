@@ -4,7 +4,7 @@ class Site:
     def __init__(self):
         self.app = Flask(__name__)
         self.messages = []
-        self.buttons = ["Hello", "Hi", "Bye"]
+        self.buttons = ["Hello", "clear"]
 
         self.app.add_url_rule(
             "/",
@@ -14,13 +14,25 @@ class Site:
         )
 
     def index(self):
+        # Клик по изображению
+        area = request.args.get("area")
+        if area:
+            self.messages.append(area)
+            return redirect(url_for("index"))
+        
         if request.method == "POST":
             text = request.form.get("text")
             btn = request.form.get("button_click")
-            if text:
+            area = request.form.get("area_click")
+            if area:
+                self.messages.append(area)
+            elif text:
                 self.messages.append(text)
             elif btn:
-                self.messages.append(btn)
+                if btn == 'clear':
+                    self.messages = []
+                else:
+                    self.messages.append(btn)
             return redirect(url_for("index"))
 
         return render_template(
