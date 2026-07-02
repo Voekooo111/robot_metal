@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="grid">
+
+  <!-- CHAT -->
+  <div class="chat">
+    
+    <div class="message" id="messages">
+      {% for m in message %}
+        <div class="msg">{{ m }}</div>
+      {% endfor %}
+    </div>
+
+    <div class="input">
+      <form method="POST">
+        <input id="chatInput" type="text" name="text" placeholder="Type..." />
+      </form>
+    </div>
+
+  </div>
+
+  <div class="image">
+    <img src="{{ url_for('static', filename='Robot_ph.png') }}" />
+  </div>
+
+  <div class="buttons">
+    {% for btn in buttons %}
+      <button>{{ btn }}</button>
+    {% endfor %}
+  </div>
+
+</div>
+
+<!-- AUTO SCROLL -->
+<script>
+  const box = document.getElementById("messages");
+  box.scrollTop = box.scrollHeight;
+</script>
+
+</body>
+</html>
+
+<script>
+  window.onload = function () {
+    document.getElementById("chatInput").focus();
+  };
+</script>

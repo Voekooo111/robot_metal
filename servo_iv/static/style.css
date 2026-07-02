@@ -1,0 +1,135 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #6a0dad;
+}
+
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  height: 100vh;
+  gap: 10px;
+  padding: 10px;
+}
+
+/* CHAT */
+.chat {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 10px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* MESSAGES */
+.message {
+  overflow-y: auto;
+  padding-right: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.msg {
+  word-break: break-word;
+}
+
+/* INPUT */
+.input {
+  margin-top: 10px;
+}
+
+.input form {
+  width: 100%;
+}
+
+.input input {
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  outline: none;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  font-size: 14px;
+}
+
+.input input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.input input:focus {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.image {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f0f0f0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.image img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* BUTTONS (CENTER + BIG + FULL COLUMN FEEL) */
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;   /* центр по горизонтали */
+  align-items: center;       /* центр по вертикали */
+  align-content: center;     /* центр всей группы */
+  gap: 15px;
+
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 10px;
+  color: white;
+
+  overflow-y: auto;
+}
+
+/* BIG BUTTONS */
+.buttons button {
+  padding: 18px 26px;
+  font-size: 16px;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+
+  transition: 0.2s ease;
+}
+
+/* HOVER EFFECT */
+.buttons button:hover {
+  background: rgba(255, 255, 255, 0.28);
+  transform: scale(1.05);
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    height: auto;
+  }
+
+  .buttons {
+    min-height: 200px;
+  }
+}
