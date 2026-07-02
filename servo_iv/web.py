@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for
-from . import robot
+from .robot_object import robot
 import pickle
 import time
 import csv
@@ -45,7 +45,7 @@ class Site:
                     with open('define.pkl', mode='wb') as file:
                         pickle.dump(robot.body, file)
             return redirect(url_for("index"))
-        
+
         if request.method == "POST":
             text = request.form.get("text")
             btn = request.form.get("button_click")
@@ -55,9 +55,9 @@ class Site:
                     self.messages.append(f"Введено число: {text}")
                     text = int(text)
                     if text == -1:
+                        robot.stop_all()
                         self._flag_calibration = False
                         self.chose_servo = None
-                        robot.servo_stop(robot.body[self.chose_servo])
                         self.messages.append("Центр сервопривода откалиброван")
                         raise Exit("Центр сервопривода откалиброван")
                     robot.servo_run(robot.body[self.chose_servo], text)
@@ -120,7 +120,7 @@ class Site:
     def define(self):
         """Определить сервопривод как канал."""
         self._flag_calibration = False
-        if self._servo_define:
+        if self._servo_define is None:
             self._servo_define = 0
         else:
             self._servo_define += 1
@@ -138,6 +138,7 @@ class Site:
             return None
         self._flag_calibration = True
         self._servo_define = None
+        robot.stand()
         self.messages.append("Готов к калибровке. Введите число")
 
     def run(self):
