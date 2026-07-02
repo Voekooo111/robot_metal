@@ -111,6 +111,7 @@ class Robot_pca(Pca):
 
 
     def stand(self):
+        """Робот запускает все сервоприводы"""
         for i in range(self.count_servo):
             self.servo_run(i, self.centers[i])     
         time.sleep(5)
