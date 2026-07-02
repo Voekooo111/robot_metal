@@ -8,23 +8,18 @@
 
 <body>
 
-<div class="grid">
+<form method="POST">
 
-  <!-- CHAT -->
+<div class="grid">
   <div class="chat">
-    
     <div class="message" id="messages">
       {% for m in message %}
         <div class="msg">{{ m }}</div>
       {% endfor %}
     </div>
-
     <div class="input">
-      <form method="POST">
-        <input id="chatInput" type="text" name="text" placeholder="Type..." />
-      </form>
+      <input id="chatInput" type="text" name="text" placeholder="Type..." autocomplete="off"/>
     </div>
-
   </div>
 
   <div class="image">
@@ -33,23 +28,26 @@
 
   <div class="buttons">
     {% for btn in buttons %}
-      <button>{{ btn }}</button>
+      <button type="submit" name="button_click" value="{{ btn }}">
+        {{ btn }}
+      </button>
     {% endfor %}
   </div>
-
 </div>
 
-<!-- AUTO SCROLL -->
+</form>
+
 <script>
-  const box = document.getElementById("messages");
-  box.scrollTop = box.scrollHeight;
+  function scrollDown() {
+    const box = document.getElementById("messages");
+    box.scrollTo({ top: box.scrollHeight });
+  }
+
+  window.addEventListener("load", () => {
+    scrollDown();
+    document.getElementById("chatInput").focus();
+  });
 </script>
 
 </body>
 </html>
-
-<script>
-  window.onload = function () {
-    document.getElementById("chatInput").focus();
-  };
-</script>

@@ -8,7 +8,6 @@ body {
   background: #6a0dad;
 }
 
-
 .grid {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
@@ -17,64 +16,82 @@ body {
   padding: 10px;
 }
 
-/* CHAT */
+/* ==========================
+   CHAT
+   ========================== */
+
 .chat {
   display: grid;
   grid-template-rows: 1fr auto;
+
   background: rgba(0, 0, 0, 0.6);
   color: white;
-  padding: 10px;
-  border-radius: 10px;
+
+  padding: 20px;
+  border-radius: 15px;
+
   overflow: hidden;
+
+  font-size: 1.5rem;
 }
 
 /* MESSAGES */
+
 .message {
   overflow-y: auto;
-  padding-right: 5px;
+  padding-right: 8px;
+
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 12px;
 }
 
 .msg {
   word-break: break-word;
+  font-size: 1em;
 }
 
 /* INPUT */
-.input {
-  margin-top: 10px;
-}
 
-.input form {
-  width: 100%;
+.input {
+  margin-top: 20px;
 }
 
 .input input {
   width: 100%;
-  padding: 10px 12px;
+
+  padding: 18px 20px;
+
   border: none;
   outline: none;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+
+  background: rgba(255,255,255,0.15);
   color: white;
-  font-size: 14px;
+
+  font-size: 1em;
 }
 
 .input input::placeholder {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255,255,255,.6);
 }
 
 .input input:focus {
-  background: rgba(255, 255, 255, 0.22);
+  background: rgba(255,255,255,.22);
 }
+
+/* ==========================
+   IMAGE
+   ========================== */
 
 .image {
   display: flex;
   justify-content: center;
   align-items: center;
+
   background: #f0f0f0;
   border-radius: 10px;
+
   overflow: hidden;
 }
 
@@ -84,45 +101,82 @@ body {
   object-fit: contain;
 }
 
-/* BUTTONS (CENTER + BIG + FULL COLUMN FEEL) */
+/* ==========================
+   BUTTONS
+   ========================== */
+
 .buttons {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;   /* центр по горизонтали */
-  align-items: center;       /* центр по вертикали */
-  align-content: center;     /* центр всей группы */
-  gap: 15px;
+
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+
+  gap: 30px;
 
   padding: 20px;
-  background: rgba(0, 0, 0, 0.6);
-  border-radius: 10px;
+
+  background: rgba(0,0,0,.6);
+  border-radius: 15px;
+
   color: white;
 
   overflow-y: auto;
 }
 
-/* BIG BUTTONS */
 .buttons button {
-  padding: 18px 26px;
-  font-size: 16px;
+  padding: 24px 36px;
+
+  font-size: 1.5rem;
+
   border: none;
-  border-radius: 14px;
+  border-radius: 18px;
+
   cursor: pointer;
 
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255,255,255,.15);
   color: white;
 
-  transition: 0.2s ease;
+  transition: .2s ease;
 }
 
-/* HOVER EFFECT */
 .buttons button:hover {
-  background: rgba(255, 255, 255, 0.28);
+  background: rgba(255,255,255,.28);
   transform: scale(1.05);
 }
 
-/* MOBILE */
-@media (max-width: 768px) {
+/* ==========================
+   IMAGE ZONES
+   ========================== */
+
+.image-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+#zones {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.zone {
+  background: rgba(255,0,0,.15);
+  border: 1px solid rgba(255,255,255,.2);
+  cursor: pointer;
+}
+
+.zone:hover {
+  background: rgba(255,255,255,.25);
+}
+
+/* ==========================
+   MOBILE
+   ========================== */
+
+@media (max-width:768px) {
+
   .grid {
     grid-template-columns: 1fr;
     grid-template-rows: auto auto auto;
@@ -132,4 +186,5 @@ body {
   .buttons {
     min-height: 200px;
   }
+
 }
