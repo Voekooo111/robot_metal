@@ -31,19 +31,14 @@ class Site:
             self.chose_servo = area
             self.messages.append(f"Выбран сервопривод: {area}")
             if self._servo_define is not None:
-                robot.servo_run(self._servo_define, 1500)
-                time.sleep(1)
-                robot.servo_run(self._servo_define, 1300)
-                time.sleep(1)
-                robot.servo_run(self._servo_define, 1800)
-                time.sleep(1)
-                robot.servo_stop(self._servo_define)
                 if area in robot.body.keys():
                     robot.body[area] = self._servo_define
                 if self._servo_define == 15:
                     self._servo_define = None
                     with open('define.pkl', mode='wb') as file:
                         pickle.dump(robot.body, file)
+                else:
+                    self.define()
             return redirect(url_for("index"))
 
         if request.method == "POST":
@@ -124,7 +119,14 @@ class Site:
             self._servo_define = 0
         else:
             self._servo_define += 1
-        self.messages.append(f"Выберите сервопривод. {self._flag_calibration}/15")
+        robot.servo_run(self._servo_define, 1500)
+        time.sleep(1)
+        robot.servo_run(self._servo_define, 1300)
+        time.sleep(1)
+        robot.servo_run(self._servo_define, 1800)
+        time.sleep(1)
+        robot.servo_stop(self._servo_define)
+        self.messages.append(f"Выберите сервопривод. {self._servo_define}/15")
         
         
 
