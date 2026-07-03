@@ -61,6 +61,8 @@
 
     </div>
 
+    <div class="buttons-column">
+
     <div class="buttons">
         {% for btn in buttons %}
         <button type="submit"
@@ -70,6 +72,18 @@
         </button>
         {% endfor %}
     </div>
+
+    <div class="user-buttons">
+        {% for btn in user_buttons %}
+        <button type="submit"
+                name="button_click"
+                value="{{ btn }}">
+            {{ btn }}
+        </button>
+        {% endfor %}
+    </div>
+
+</div>
 
 </div>
 

@@ -13,6 +13,7 @@ class Site:
         self.app = Flask(__name__)
         self.messages = []
         self.buttons = ["documentation", "define", "calibration", "stand", "sleep", "stop", "clear"]
+        self.user_buttons = []
         self.chose_servo = None
         self._flag_calibration = False
         self._servo_define = None
@@ -80,7 +81,8 @@ class Site:
         return render_template(
             "index.html",
             message=self.messages,
-            buttons=self.buttons
+            buttons=self.buttons,
+            user_buttons=self.user_buttons,
         )
     
     def commands(self, com: str):
