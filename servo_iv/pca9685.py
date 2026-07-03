@@ -55,7 +55,10 @@ class Pca:
         off_low = r_time & 0b11111111
         off_high = (r_time >> 8) & 0x0F
         start_reg = 0x06 + 4 * channel
-        lgpio.i2c_write_block_data(self.i2c_handle, start_reg, (0, 0, off_low, off_high))
+        lgpio.i2c_write_byte_data(self.i2c_handle, start_reg, 0)
+        lgpio.i2c_write_byte_data(self.i2c_handle, start_reg+1, 0)
+        lgpio.i2c_write_byte_data(self.i2c_handle, start_reg+2, off_low)
+        lgpio.i2c_write_byte_data(self.i2c_handle, start_reg+3, off_high)
     
     def close(self):
         """
@@ -66,4 +69,8 @@ class Pca:
             self.i2c_handle = None
 
     
-
+if __name__ == "__main__":
+    pca = Pca()
+    print("pca подключен")
+    pca.servo_run(0, 1500)
+    
