@@ -116,8 +116,23 @@ class Robot_pca(Pca):
             time.sleep(0.1)
 
 
-    def stand(self):
-        """Робот запускает все сервоприводы"""
+    def full(self):
+        """Робот запускает все сервоприводы."""
         for i in range(self.count_servo):
             self.servo_run(i, self.centers[i])     
             time.sleep(0.1)
+    
+    def servo_run_name(self, name: str, value: int):
+        """Запуск сервопривода по названию."""
+        self.servo_run(self.body[name], self.centers[self.body[name]] + value)
+    
+
+    def stand(self):
+        self.servo_run_name('hand_left_2', 500)
+        self.servo_run_name('hand_right_2', -500)
+        time.sleep(0.5)
+        self.servo_run_name('hand_left_1', 500)
+        self.servo_run_name('hand_right_1', -500)
+        time.sleep(0.2)
+        self.servo_run_name('leg_left_1', 500)
+        self.servo_run_name('leg_right_1', -500)

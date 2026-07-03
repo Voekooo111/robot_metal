@@ -12,7 +12,7 @@ class Site:
     def __init__(self):
         self.app = Flask(__name__)
         self.messages = []
-        self.buttons = ["documentation", "define", "calibration", "stand", "sleep", "stop", "clear"]
+        self.buttons = ["documentation", "define", "calibration", "stand", "full", "sleep", "create", "stop", "clear"]
         self.user_buttons = []
         self.chose_servo = None
         self._flag_calibration = False
@@ -109,7 +109,7 @@ class Site:
             "Повторять шаг 2, пока не определиться каждый сервопривод",
             "",
             "Калибровка:",
-            "1) stand",
+            "1) full",
             "2) Выбрать сервопривод",
             "3) calibration",
             "4) Вводить числа",
@@ -117,7 +117,7 @@ class Site:
             "6) sleep",
             "",
             "Включить все сервоприводы:",
-            "1) stand",
+            "1) full",
             "",
             "Отключить все сервоприводы",
             "1) sleep",
@@ -156,9 +156,15 @@ class Site:
         self.messages.append(f"Готов к калибровке. Установлено значение - {robot.centers[robot.body[self.chose_servo]]}.")
         self.messages.append("Введите новое значение.")
 
-    def stand(self):
+    def full(self):
         """Включить сервоприводы."""
+        robot.full()
+
+
+    def stand(self):
+        """Робот встаёт."""
         robot.stand()
+        
 
     def sleep(self):
         """Выключить все сервоприводы."""
@@ -169,6 +175,9 @@ class Site:
         self._flag_calibration = False
         self._servo_define = None
         self.messages.append("Принудительная остановка процессов.")
+    
+    def create(self):
+        pass
 
     def run(self):
         """Запуск сайта."""
