@@ -29,13 +29,13 @@ class Site:
         area = request.args.get("area")
         if area:
             self.chose_servo = area
-            self.messages.append(f"Выбран сервопривод: {area}")
+            self.messages.append(f"Выбран сервопривод: {area}.")
             if self._servo_define is not None:
                 if area in robot.body.keys():
                     robot.body[area] = self._servo_define
                 if self._servo_define == 15:
                     self._servo_define = None
-                    self.messages.append("Сервоприводы успешно определены")
+                    self.messages.append("Сервоприводы успешно определены.")
                     with open('define.pkl', mode='wb') as file:
                         pickle.dump(robot.body, file)
                 else:
@@ -50,20 +50,20 @@ class Site:
                 self.stop()
             elif self._flag_calibration and text:
                 try:
-                    self.messages.append(f"Введено число: {text}")
+                    self.messages.append(f"Введено число: {text}.")
                     text = int(text)
                     if text == -1:
                         self._flag_calibration = False
                         self.chose_servo = None
-                        self.messages.append("Центр сервопривода откалиброван")
-                        raise Exit("Центр сервопривода откалиброван")
+                        self.messages.append("Центр сервопривода откалиброван.")
+                        raise Exit("Центр сервопривода откалиброван.")
                     robot.servo_run(robot.body[self.chose_servo], text)
                     robot.centers[robot.body[self.chose_servo]] = text
                     with open('calibration.csv', mode='w', newline='') as file:
                         writer = csv.writer(file)
                         writer.writerow(robot.centers)
                 except (ValueError, TypeError):
-                    self.messages.append('Введите целое неотрицательное число')
+                    self.messages.append('Введите целое неотрицательное число.')
                 except Exit:
                     pass
 
@@ -88,7 +88,7 @@ class Site:
         Что делать с командой.
         
         Args:
-            com - заданная команда
+            com - заданная команда.
         """
         if com == 'clear':
             self.messages = []
@@ -155,21 +155,21 @@ class Site:
         self.messages.append("Введите новое значение.")
 
     def stand(self):
-        """Включить сервоприводы"""
+        """Включить сервоприводы."""
         robot.stand()
 
     def sleep(self):
-        """Выключить все сервоприводы"""
+        """Выключить все сервоприводы."""
         robot.stop_all()
 
     def stop(self):
-        """Остановка процесса"""
+        """Остановка процесса."""
         self._flag_calibration = False
         self._servo_define = None
         self.messages.append("Принудительная остановка процессов.")
 
     def run(self):
-        """Запуск сайта"""
+        """Запуск сайта."""
         self.app.run(host="0.0.0.0", port=5000, debug=True)
 
 if __name__ == "__main__":
