@@ -12,7 +12,7 @@ class Site:
     def __init__(self):
         self.app = Flask(__name__)
         self.messages = []
-        self.buttons = ["documantion", "define", "calibration", "clear"]
+        self.buttons = ["documentation", "define", "calibration", "stand", "sleep", "stop", "clear"]
         self.chose_servo = None
         self._flag_calibration = False
         self._servo_define = None
@@ -35,6 +35,7 @@ class Site:
                     robot.body[area] = self._servo_define
                 if self._servo_define == 15:
                     self._servo_define = None
+                    self.messages.append("Сервоприводы успешно определены")
                     with open('define.pkl', mode='wb') as file:
                         pickle.dump(robot.body, file)
                 else:
@@ -45,12 +46,13 @@ class Site:
             text = request.form.get("text")
             btn = request.form.get("button_click")
             area = request.form.get("area_click")
-            if self._flag_calibration and text:
+            if text == "stop":
+                self.stop()
+            elif self._flag_calibration and text:
                 try:
                     self.messages.append(f"Введено число: {text}")
                     text = int(text)
                     if text == -1:
-                        robot.stop_all()
                         self._flag_calibration = False
                         self.chose_servo = None
                         self.messages.append("Центр сервопривода откалиброван")
@@ -95,20 +97,31 @@ class Site:
         else:
             self.messages.append(com)
     
-    def documantion(self):
+    def documentation(self):
         """Документация к командам."""
         commands = [
-            "-----------------------",
+            "-----------------------------------------",
             "Определить сервопривод как канал:",
             "1) define",
-            "2) Выбрать сервопривод"
-            "Повторять шаги, пока не определиться каждый сервопривод",
+            "2) Выбрать сервопривод",
+            "Повторять шаг 2, пока не определиться каждый сервопривод",
             "",
-            "Калибровка:", 
-            "1) Выбрать сервопривод",
-            "2) calibration",
-            "3) Вводить числа",
-            "4) Для завершения ввести -1",
+            "Калибровка:",
+            "1) stand",
+            "2) Выбрать сервопривод",
+            "3) calibration",
+            "4) Вводить числа",
+            "5) Для завершения ввести -1",
+            "6) sleep",
+            "",
+            "Включить все сервоприводы:",
+            "1) stand",
+            "",
+            "Отключить все сервоприводы",
+            "1) sleep",
+            "",
+            "Принудительно остановить процесс:",
+            "1) stop",
         ]
         self.messages.extend(commands)
 
@@ -120,15 +133,13 @@ class Site:
         else:
             self._servo_define += 1
         robot.servo_run(self._servo_define, 1500)
-        time.sleep(1)
+        time.sleep(0.6)
         robot.servo_run(self._servo_define, 1300)
-        time.sleep(1)
+        time.sleep(0.6)
         robot.servo_run(self._servo_define, 1800)
-        time.sleep(1)
+        time.sleep(0.2)
         robot.servo_stop(self._servo_define)
-        self.messages.append(f"Выберите сервопривод. {self._servo_define}/15")
-        
-        
+        self.messages.append(f"Выберите сервопривод. {self._servo_define}/{robot.count_servo-1}.")
 
     def calibration(self):
         """Калибровка сервоприводов."""
@@ -140,8 +151,22 @@ class Site:
             return None
         self._flag_calibration = True
         self._servo_define = None
+        self.messages.append(f"Готов к калибровке. Установлено значение - {robot.centers[robot.body[self.chose_servo]]}.")
+        self.messages.append("Введите новое значение.")
+
+    def stand(self):
+        """Включить сервоприводы"""
         robot.stand()
-        self.messages.append("Готов к калибровке. Введите число")
+
+    def sleep(self):
+        """Выключить все сервоприводы"""
+        robot.stop_all()
+
+    def stop(self):
+        """Остановка процесса"""
+        self._flag_calibration = False
+        self._servo_define = None
+        self.messages.append("Принудительная остановка процессов.")
 
     def run(self):
         """Запуск сайта"""
