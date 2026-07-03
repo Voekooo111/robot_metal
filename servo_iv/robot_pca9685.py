@@ -128,11 +128,11 @@ class Robot_pca(Pca):
     
 
     def stand(self):
-        self.servo_run_name('hand_left_2', -500)
-        self.servo_run_name('hand_right_2', 500)
+        self.servo_run_name('hand_left_2', 700)
+        self.servo_run_name('hand_right_2', -700)
         time.sleep(0.5)
         self.servo_run_name('hand_left_1', -500)
         self.servo_run_name('hand_right_1', 500)
         time.sleep(0.2)
-        self.servo_run_name('leg_left_1', -500)
-        self.servo_run_name('leg_right_1', 500)
+        self.servo_run_name('leg_left_1', -600)
+        self.servo_run_name('leg_right_1', 600)
