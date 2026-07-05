@@ -39,6 +39,10 @@ class Robot_pca(Pca):
         }
         self.count_servo = count_servo
         self.centers = [1500] * count_servo
+        if self.count_servo == 16:
+            self.servo_side = [1, 1, 1, -1, -1, -1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1]
+        else:
+            self.servo_side = [1] * self.servo_run
     
     def class_start(self):
         self.define_servo()
@@ -124,10 +128,12 @@ class Robot_pca(Pca):
     
     def servo_run_name(self, name: str, value: int):
         """Запуск сервопривода по названию."""
-        self.servo_run(self.body[name], self.centers[self.body[name]] + value)
+        self.servo_run(self.body[name], 
+                       self.centers[self.body[name]] * self.servo_side[self.body[name]] + value)
     
 
     def stand(self):
+        """Робот должен встать с положения лёжа."""
         self.servo_run_name('hand_left_2', 700)
         self.servo_run_name('hand_right_2', -700)
         time.sleep(0.5)

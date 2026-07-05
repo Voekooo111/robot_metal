@@ -13,6 +13,7 @@ class Site:
         self.app = Flask(__name__)
         self.messages = []
         self.buttons = ["documentation", "define", "calibration", "stand", "full", "sleep", "create", "stop", "clear"]
+        self.servo_side = [1, 1, 1, -1, -1, -1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1]
         self.user_buttons = []
         self.chose_servo = None
         self._flag_calibration = False
@@ -36,6 +37,7 @@ class Site:
                     robot.body[area] = self._servo_define
                 if self._servo_define == 15:
                     self._servo_define = None
+                    self.chose_servo = None
                     self.messages.append("Сервоприводы успешно определены.")
                     with open('define.pkl', mode='wb') as file:
                         pickle.dump(robot.body, file)
@@ -113,6 +115,7 @@ class Site:
             "2) Выбрать сервопривод",
             "3) calibration",
             "4) Вводить числа",
+            "У каждого сервопривода есть ограничения по времени импульса (500 мкс, 2500 мкс)",
             "5) Для завершения ввести -1",
             "6) sleep",
             "",
@@ -153,6 +156,7 @@ class Site:
             return None
         self._flag_calibration = True
         self._servo_define = None
+        self.chose_servo = None
         self.messages.append(f"Готов к калибровке. Установлено значение - {robot.centers[robot.body[self.chose_servo]]}.")
         self.messages.append("Введите новое значение.")
 
@@ -178,6 +182,13 @@ class Site:
     
     def create(self):
         pass
+
+    def servo_run(self, value: int):
+        """Включение сервопривода"""
+        if self.chose_servo is None:
+            self.messages.append("Сервопривод не выбран.")
+            return None
+        robot.servo_run_name(self.chose_servo, value)
 
     def run(self):
         """Запуск сайта."""
