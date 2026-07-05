@@ -136,7 +136,7 @@ class Robot_pca(Pca):
             self.servo_run(i, self.centers[i])     
             time.sleep(0.1)
     
-    def servo_run_name(self, name: str, value: int, part: bool = False):
+    def servo_run_name(self, name: str, value: int):
         """
         Запуск сервопривода по названию.
         
@@ -144,9 +144,13 @@ class Robot_pca(Pca):
             value - значение, на которое надо переместить сервопривод.
             part - посылаемое значение из bodypart
         """
-        body_num = self.body[name]
-        if not part:
+        if name in self.body:
             body_num = (body_num, )
+            body_num = self.body[name]
+        elif name in self.bodypart:
+            body_num = self.bodypart[name]
+        else:
+            return f"{name} не существует в body и bodypart."
         for b_n in body_num:
             self.servo_run(b_n, 
                     self.centers[b_n] * self.servo_side[b_n] + value)

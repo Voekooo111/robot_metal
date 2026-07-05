@@ -14,10 +14,15 @@ class Site:
         self.messages = []
         self.buttons = ["documentation", "define", "calibration", "stand", "full", "sleep", "create", "stop", "clear"]
         self.servo_side = [1, 1, 1, -1, -1, -1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1]
-        self.user_buttons = []
         self.chose_servo = None
         self._flag_calibration = False
+        self._flag_create = False
+        self._flag_name = False
+        self.debug = True
         self._servo_define = None
+        self.temp_user_commands = []
+        self.temp_user_commands_name = None
+        self.user_commands = dict()
 
         self.app.add_url_rule(
             "/",
@@ -51,6 +56,27 @@ class Site:
             area = request.form.get("area_click")
             if text == "stop":
                 self.stop()
+            elif text == "begin":
+                self._flag_create = False
+                self.create()
+            elif text == "stop":
+                self._flag_create = True
+                self.create()
+            elif self._flag_create and self.temp_user_commands_name is None:
+                if text not in self.buttons and text not in list(self.user_commands.keys()):
+                    self.temp_user_commands_name = text
+                else:
+                    self.messages.append("Введите название функции, которое не повторяется.")
+                    return render_template(
+                                "index.html",
+                                message = self.messages,
+                                buttons = self.buttons,
+                                user_buttons = list(self.user_commands.keys()),
+                                flag_calibration = self._flag_calibration,
+                                flag_create = self._flag_create,
+                            )
+            elif self._flag_create and btn != "create":
+                self.create_function(text)
             elif self._flag_calibration and text:
                 try:
                     self.messages.append(f"Введено число: {text}.")
@@ -82,9 +108,11 @@ class Site:
 
         return render_template(
             "index.html",
-            message=self.messages,
-            buttons=self.buttons,
-            user_buttons=self.user_buttons,
+            message = self.messages,
+            buttons = self.buttons,
+            user_buttons = list(self.user_commands.keys()),
+            flag_calibration = self._flag_calibration,
+            flag_create = self._flag_create,
         )
     
     def commands(self, com: str):
@@ -181,7 +209,53 @@ class Site:
         self.messages.append("Принудительная остановка процессов.")
     
     def create(self):
-        pass
+        """Создание функции."""
+        self.messages.append("\n\n\n")
+        self._flag_calibration = False
+        if self._flag_create:
+            self.messages.append("end")
+            self._flag_create = False
+            self._flag_name = False
+            self.user_commands[self.temp_user_commands_name] = self.temp_user_commands
+            self.temp_user_commands = []
+        else:
+            self.messages.append("begin")
+            self._flag_create = True
+            self._flag_name = True
+    
+    def create_function(self, command: str):
+        """
+        Создание функции по тексту
+        
+        Args:
+            command - команда
+        """
+        try:
+            command = command.split()
+            self.temp_user_commands.append(command)
+            self.execute([command])
+        except Exception as e:
+            if self.debug:
+                self.messages.append(e)
+            return None
+    
+    def execute(self, commands: list[list[str]]):
+        """
+        Выполняет комманды.
+        
+        Args:
+            commands - команды
+        """
+        for command in self.commands:
+            if command[0] == 'run':
+                try:
+                    value = int(command[3])
+                    robot.servo_run_name(self.chose_servo, value)
+                    if robot.servo_run_name(self.chose_servo, value) is not None and self.debug:
+                        self.messages.append(robot.servo_run_name(self.chose_servo, value))
+                except (ValueError, TypeError):
+                    self.messages.append("Ошибка входных параметров для run: run <выбранные сервопривод текстом> <значение>")
+        
 
     def servo_run(self, value: int):
         """Включение сервопривода"""
@@ -189,6 +263,8 @@ class Site:
             self.messages.append("Сервопривод не выбран.")
             return None
         robot.servo_run_name(self.chose_servo, value)
+        if robot.servo_run_name(self.chose_servo, value) is not None and self.debug:
+            self.messages.append(robot.servo_run_name(self.chose_servo, value))
 
     def run(self):
         """Запуск сайта."""
