@@ -35,16 +35,25 @@ class Robot_pca(Pca):
         }
         self.bodypart: dict[str, None | tuple] = {
             'hand' : tuple(range(6)), 
-            'leg' : tuple(range(6, count_servo))
+            'leg' : tuple(range(6, count_servo)),
+            'hand_0': (0, 3),
+            'hand_1': (1, 4),
+            'hand_2': (2, 5),
+            'leg_0' : (6, 11),
+            'leg_1' : (7, 12),
+            'leg_2' : (8, 13),
+            'leg_3' : (9, 14),
+            'leg_4' : (10, 15),
         }
         self.count_servo = count_servo
         self.centers = [1500] * count_servo
         if self.count_servo == 16:
-            self.servo_side = [1, 1, 1, -1, -1, -1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1]
+            self.servo_side = [1, 1, -1, -1, -1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1]
         else:
             self.servo_side = [1] * self.count_servo
     
     def class_start(self):
+        """Преднастройка класса."""
         self.define_servo()
         self.calibrate()
 
@@ -115,6 +124,7 @@ class Robot_pca(Pca):
 
 
     def stop_all(self):
+        """Выключить все сервоприводы."""
         for i in range(self.count_servo):
             self.servo_stop(i)
             time.sleep(0.1)
@@ -126,19 +136,27 @@ class Robot_pca(Pca):
             self.servo_run(i, self.centers[i])     
             time.sleep(0.1)
     
-    def servo_run_name(self, name: str, value: int):
-        """Запуск сервопривода по названию."""
-        self.servo_run(self.body[name], 
-                       self.centers[self.body[name]] * self.servo_side[self.body[name]] + value)
+    def servo_run_name(self, name: str, value: int, part: bool = False):
+        """
+        Запуск сервопривода по названию.
+        
+        Args:
+            value - значение, на которое надо переместить сервопривод.
+            part - посылаемое значение из bodypart
+        """
+        body_num = self.body[name]
+        if not part:
+            body_num = (body_num, )
+        for b_n in body_num:
+            self.servo_run(b_n, 
+                    self.centers[b_n] * self.servo_side[b_n] + value)
+            
     
 
     def stand(self):
         """Робот должен встать с положения лёжа."""
-        self.servo_run_name('hand_left_2', 700)
-        self.servo_run_name('hand_right_2', -700)
+        self.servo_run_name('hand_2', 700, True)
         time.sleep(0.5)
-        self.servo_run_name('hand_left_1', -500)
-        self.servo_run_name('hand_right_1', 500)
+        self.servo_run_name('hand_1', 500, True)
         time.sleep(0.2)
-        self.servo_run_name('leg_left_1', -600)
-        self.servo_run_name('leg_right_1', 600)
+        self.servo_run_name('leg_1', 600, True)
