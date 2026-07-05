@@ -142,7 +142,6 @@ class Robot_pca(Pca):
         
         Args:
             value - значение, на которое надо переместить сервопривод.
-            part - посылаемое значение из bodypart
         """
         if name in self.body:
             body_num = (body_num, )
@@ -159,8 +158,8 @@ class Robot_pca(Pca):
 
     def stand(self):
         """Робот должен встать с положения лёжа."""
-        self.servo_run_name('hand_2', 700, True)
+        self.servo_run_name('hand_2', 700)
         time.sleep(0.5)
-        self.servo_run_name('hand_1', 500, True)
+        self.servo_run_name('hand_1', 500)
         time.sleep(0.2)
-        self.servo_run_name('leg_1', 600, True)
+        self.servo_run_name('leg_1', 600)
