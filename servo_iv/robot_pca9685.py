@@ -42,7 +42,7 @@ class Robot_pca(Pca):
         if self.count_servo == 16:
             self.servo_side = [1, 1, 1, -1, -1, -1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1]
         else:
-            self.servo_side = [1] * self.servo_run
+            self.servo_side = [1] * self.count_servo
     
     def class_start(self):
         self.define_servo()
