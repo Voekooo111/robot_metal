@@ -158,8 +158,20 @@ class Robot_pca(Pca):
 
     def stand(self):
         """Робот должен встать с положения лёжа."""
-        self.servo_run_name('hand_2', 700)
+        self.servo_run_name('hand_left_2', 900)
+        self.servo_run_name('hand_right_2', -900)
+        time.sleep(1)
+        self.servo_run_name('hand_left_1', -500)
+        self.servo_run_name('hand_right_1', 500)
         time.sleep(0.5)
-        self.servo_run_name('hand_1', 500)
+        self.servo_run_name('hand_left_1', -800)
+        self.servo_run_name('hand_right_1', 800)
         time.sleep(0.2)
-        self.servo_run_name('leg_1', 600)
+        self.servo_run_name('hand_left_0', -500)
+        self.servo_run_name('hand_right_0', 500)
+        time.sleep(0.2)
+        self.servo_run_name('leg_left_1', -700)
+        self.servo_run_name('leg_right_1', 700)
+        time.sleep(1)
+        self.servo_run_name('leg_left_3', 1000)
+        self.servo_run_name('leg_right_3', -1000)
