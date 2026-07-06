@@ -152,7 +152,6 @@ class Robot_pca(Pca):
         else:
             return f"{name} не существует в body и bodypart."
         for b_n in body_num:
-            self.message("Перемещен.")
             self.servo_run(b_n, 
                     self.centers[b_n] * self.servo_side[b_n] + value)
 
