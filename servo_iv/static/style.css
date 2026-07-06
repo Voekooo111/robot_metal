@@ -189,60 +189,8 @@ body {
    BUTTON COLUMN
    ========================== */
 
-
-.user-button-wrapper {
-
-    position: relative;
-
-    display: inline-block;
-}
-
-.delete-btn {
-
-    position: absolute;
-
-    top: -8px;
-    right: -8px;
-
-    width: 24px;
-    height: 24px;
-
-    border: none;
-    border-radius: 50%;
-
-    background: #ff4b5c;
-    color: white;
-
-    font-size: 16px;
-    font-weight: bold;
-
-    cursor: pointer;
-
-    opacity: 0;
-
-    transform: scale(0.7);
-
-    transition: .2s;
-}
-
-.user-button-wrapper:hover .delete-btn {
-
-    opacity: 1;
-
-    transform: scale(1);
-}
-
-.delete-btn:hover {
-
-    background: #ff2236;
-
-    transform: scale(1.15);
-}
-
 .buttons-column {
-
     display: grid;
-
     grid-template-rows: 1fr 1fr;
 
     gap: 10px;
@@ -250,16 +198,17 @@ body {
     height: 100%;
 }
 
+/* Контейнеры */
+
 .buttons,
 .user-buttons {
 
     display: flex;
-
     flex-wrap: wrap;
 
     justify-content: center;
-    align-items: center;
     align-content: center;
+    align-items: center;
 
     gap: 30px;
 
@@ -278,27 +227,25 @@ body {
     background: rgba(0,0,0,.35);
 }
 
-.buttons button,
-.user-buttons button {
+/* ==========================
+   Обычные кнопки
+   ========================== */
+
+.buttons button {
 
     padding: 24px 36px;
 
     font-size: 1.5rem;
 
     border: none;
-
     border-radius: 18px;
 
     cursor: pointer;
 
+    background: rgba(255,255,255,.15);
     color: white;
 
     transition: .2s;
-}
-
-.buttons button {
-
-    background: rgba(255,255,255,.15);
 }
 
 .buttons button:hover {
@@ -308,16 +255,95 @@ body {
     transform: scale(1.05);
 }
 
-.user-buttons button {
+/* ==========================
+   Пользовательские кнопки
+   ========================== */
 
-    background: rgba(0,170,255,.25);
+.user-button-wrapper {
+
+    position: relative;
+
+    display: inline-flex;
 }
 
-.user-buttons button:hover {
+.user-btn {
+
+    padding: 24px 60px 24px 36px;
+
+    font-size: 1.5rem;
+
+    border: none;
+    border-radius: 18px;
+
+    cursor: pointer;
+
+    background: rgba(0,170,255,.25);
+    color: white;
+
+    transition: .2s;
+}
+
+.user-btn:hover {
 
     background: rgba(0,170,255,.45);
 
     transform: scale(1.05);
+}
+
+/* ==========================
+   Кнопка удаления
+   ========================== */
+
+.delete-btn {
+
+    position: absolute;
+
+    top: 8px;
+    right: 8px;
+
+    width: 26px;
+    height: 26px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 0;
+
+    border: none;
+    border-radius: 50%;
+
+    background: rgba(255,255,255,.18);
+    color: white;
+
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 1;
+
+    cursor: pointer;
+
+    opacity: 0;
+
+    transform: scale(.8);
+
+    transition:
+        opacity .2s,
+        transform .2s,
+        background .2s;
+}
+
+.user-button-wrapper:hover .delete-btn {
+
+    opacity: 1;
+
+    transform: scale(1);
+}
+
+.delete-btn:hover {
+
+    background: #ff4b5c;
+
+    transform: scale(1.15);
 }
 
 /* ==========================
