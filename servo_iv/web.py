@@ -3,6 +3,7 @@ from .robot_object import robot
 import pickle
 import time
 import csv
+import copy
 
 class Exit(Exception):
     pass
@@ -265,11 +266,9 @@ class Site:
                         value = int(command[2])
                         if robot.servo_run_name(command[1], value) is not None and self.debug:
                             self.messages.append(robot.servo_run_name(command[1], value))
-                        return True
                     elif len(command) == 2:
                         if robot.servo_stop_name(command[1]) is not None and self.debug:
                             self.messages.append(robot.servo_stop_name(command[1]))
-                        return True
                     else:
                         raise IndexError("")
                 except (ValueError, TypeError, IndexError):
@@ -281,7 +280,6 @@ class Site:
                         value = float(command[1])
                         if multy:
                             time.sleep(value) # Заменить на datetime
-                        return True
                     else:
                         raise IndexError
                 except (ValueError, TypeError, IndexError):

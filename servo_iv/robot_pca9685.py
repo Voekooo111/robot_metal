@@ -154,6 +154,7 @@ class Robot_pca(Pca):
         for b_n in body_num:
             self.servo_run(b_n, 
                     self.centers[b_n] * self.servo_side[b_n] + value)
+            return f"{b_n} - {self.centers[b_n] * self.servo_side[b_n] + value}"
 
     def servo_stop_name(self, name: str):
         """
@@ -170,7 +171,8 @@ class Robot_pca(Pca):
         else:
             return f"{name} не существует в body и bodypart."
         for b_n in body_num:
-            self.servo_stop(b_n)    
+            self.servo_stop(b_n)
+            return b_n
 
     def stand(self):
         """Робот должен встать с положения лёжа."""
