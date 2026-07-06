@@ -54,6 +54,7 @@ class Site:
             text = request.form.get("text")
             btn = request.form.get("button_click")
             area = request.form.get("area_click")
+            delete_ser_button = request.form.get("delete")
             if text == "stop":
                 self.stop()
             elif text == "begin":
@@ -95,7 +96,8 @@ class Site:
                     self.messages.append('Введите целое неотрицательное число.')
                 except Exit:
                     pass
-
+            elif delete_ser_button is not None and delete_ser_button in self.user_commands:
+                self.user_commands.pop(delete_ser_button, "Not Found")
             elif text in self.buttons:
                 self.commands(text)
             elif area:

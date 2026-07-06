@@ -8,7 +8,13 @@
 
 <body>
 
-<form method="POST">
+<form method="POST" id="mainForm">
+
+    <input
+        type="hidden"
+        id="deleteField"
+        name="delete"
+        value="">
 
 <div class="grid">
 
@@ -113,11 +119,26 @@
         <div class="user-buttons">
 
             {% for btn in user_buttons %}
-            <button type="submit"
+
+            <div class="user-button-wrapper">
+
+                <button
+                    type="submit"
+                    class="user-btn"
                     name="button_click"
                     value="{{ btn }}">
-                {{ btn }}
-            </button>
+                    {{ btn }}
+                </button>
+
+                <button
+                    type="button"
+                    class="delete-btn"
+                    onclick="deleteUserButton('{{ btn }}')">
+                    ✕
+                </button>
+
+            </div>
+
             {% endfor %}
 
         </div>
@@ -144,6 +165,15 @@ window.onload = function () {
 
     imageMapResize();
 };
+
+function deleteUserButton(buttonName){
+
+    if (!confirm(`Вы уверены, что хотите удалить "${buttonName}"?`))
+        return;
+
+    document.getElementById("deleteField").value = buttonName;
+    document.getElementById("mainForm").submit();
+}
 </script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/image-map-resizer/1.0.10/js/imageMapResizer.min.js"></script>
