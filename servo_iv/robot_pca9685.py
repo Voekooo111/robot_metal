@@ -153,8 +153,8 @@ class Robot_pca(Pca):
             return f"{name} не существует в body и bodypart."
         for b_n in body_num:
             self.servo_run(b_n, 
-                    self.centers[b_n] * self.servo_side[b_n] + value)
-            return f"{b_n} - {self.centers[b_n] * self.servo_side[b_n] + value}"
+                    self.centers[b_n] + value * self.servo_side[b_n])
+            return f"{b_n} - {self.centers[b_n] + value * self.servo_side[b_n]}"
 
     def servo_stop_name(self, name: str):
         """
