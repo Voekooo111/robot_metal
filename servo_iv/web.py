@@ -66,6 +66,7 @@ class Site:
             elif self._flag_create and self.temp_user_commands_name is None:
                 if text not in self.buttons and text not in list(self.user_commands.keys()):
                     self.temp_user_commands_name = text
+                    self.messages.append(f"Название: {text}.")
                 else:
                     self.messages.append("Введите название функции, которое не повторяется.")
                     return render_template(
@@ -77,6 +78,7 @@ class Site:
                                 flag_create = self._flag_create,
                             )
             elif self._flag_create and btn != "create":
+                self.messages.append(text)
                 self.create_function(text)
             elif self._flag_calibration and text:
                 try:
@@ -187,6 +189,7 @@ class Site:
         self._flag_calibration = True
         self._servo_define = None
         self.chose_servo = None
+        print(robot.body[self.chose_servo]])
         self.messages.append(f"Готов к калибровке. Установлено значение - {robot.centers[robot.body[self.chose_servo]]}.")
         self.messages.append("Введите новое значение.")
 
@@ -212,16 +215,17 @@ class Site:
     
     def create(self):
         """Создание функции."""
-        self.messages.append("\n\n\n")
+        self.messages.extend(["", ""])
         self._flag_calibration = False
         if self._flag_create:
-            self.messages.append("end")
+            self.messages.append("end function")
             self._flag_create = False
             self._flag_name = False
             self.user_commands[self.temp_user_commands_name] = self.temp_user_commands
             self.temp_user_commands = []
         else:
-            self.messages.append("begin")
+            self.messages.append("begin function")
+            self.messages.append("Введите название функции.")
             self._flag_create = True
             self._flag_name = True
     
@@ -234,8 +238,9 @@ class Site:
         """
         try:
             command = command.split()
-            self.temp_user_commands.append(command)
-            self.execute([command])
+            if self.execute([command]):
+                self.temp_user_commands.append(command)
+            
         except Exception as e:
             if self.debug:
                 self.messages.append(e)
@@ -255,8 +260,13 @@ class Site:
                     robot.servo_run_name(self.chose_servo, value)
                     if robot.servo_run_name(self.chose_servo, value) is not None and self.debug:
                         self.messages.append(robot.servo_run_name(self.chose_servo, value))
+                        return True
                 except (ValueError, TypeError):
                     self.messages.append("Ошибка входных параметров для run: run <выбранные сервопривод текстом> <значение>")
+                    return False
+            else:
+                self.messages.append("Ошибка. Команда не найдена.")
+                return False
         
 
     def servo_run(self, value: int):
