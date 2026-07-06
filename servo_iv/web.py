@@ -60,7 +60,7 @@ class Site:
             elif text == "begin":
                 self._flag_create = False
                 self.create()
-            elif text == "stop":
+            elif text == "end":
                 self._flag_create = True
                 self.create()
             elif self._flag_create and self.temp_user_commands_name is None:
@@ -220,6 +220,7 @@ class Site:
             self._flag_create = False
             self._flag_name = False
             self.user_commands[self.temp_user_commands_name] = self.temp_user_commands
+            self.temp_user_commands_name = None
             self.temp_user_commands = []
         else:
             self.messages.append("begin function")
@@ -263,6 +264,18 @@ class Site:
                         if robot.servo_stop_name(command[1]) is not None and self.debug:
                             self.messages.append(robot.servo_stop_name(command[1]))
                         return True
+                    else:
+                        raise IndexError("")
+                except (ValueError, TypeError, IndexError):
+                    self.messages.append("Ошибка входных параметров для run: run <выбранные сервопривод текстом> <значение>")
+                    return False
+            if command[0] == 'time':
+                try:
+                    if len(command) == 2:
+                        time.sleep(float(command[1])) # Заменить на datetime
+                        return True
+                    else:
+                        raise IndexError
                 except (ValueError, TypeError, IndexError):
                     self.messages.append("Ошибка входных параметров для run: run <выбранные сервопривод текстом> <значение>")
                     return False
