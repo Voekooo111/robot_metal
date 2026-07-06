@@ -254,7 +254,7 @@ class Site:
         for command in commands:
             if command[0] == 'run':
                 try:
-                    value = int(command[3])
+                    value = int(command[2])
                     robot.servo_run_name(self.chose_servo, value)
                     if robot.servo_run_name(self.chose_servo, value) is not None and self.debug:
                         self.messages.append(robot.servo_run_name(self.chose_servo, value))
