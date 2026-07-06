@@ -144,8 +144,8 @@ class Robot_pca(Pca):
             value - значение, на которое надо переместить сервопривод.
         """
         if name in self.body:
-            body_num = (body_num, )
             body_num = self.body[name]
+            body_num = (body_num, )
         elif name in self.bodypart:
             body_num = self.bodypart[name]
         else:

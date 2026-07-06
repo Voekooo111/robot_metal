@@ -234,15 +234,15 @@ class Site:
         Args:
             command - команда
         """
-        try:
-            command = command.split()
-            if self.execute([command]):
-                self.temp_user_commands.append(command)
+#        try:
+        command = command.split()
+        if self.execute([command]):
+            self.temp_user_commands.append(command)
             
-        except Exception as e:
-            if self.debug:
-                self.messages.append(e)
-            return None
+#        except Exception as e:
+#            if self.debug:
+#                self.messages.append(e)
+#            return None
     
     def execute(self, commands: list[list[str]]):
         """
@@ -254,12 +254,16 @@ class Site:
         for command in commands:
             if command[0] == 'run':
                 try:
-                    value = int(command[2])
-                    robot.servo_run_name(command[1], value)
-                    if robot.servo_run_name(command[1], value) is not None and self.debug:
-                        self.messages.append(robot.servo_run_name(command[1], value))
+                    if len(command) == 3:
+                        value = int(command[2])
+                        if robot.servo_run_name(command[1], value) is not None and self.debug:
+                            self.messages.append(robot.servo_run_name(command[1], value))
                         return True
-                except (ValueError, TypeError):
+                    elif len(command) == 2:
+                        if robot.servo_stop_name(command[1]) is not None and self.debug:
+                            self.messages.append(robot.servo_stop_name(command[1]))
+                        return True
+                except (ValueError, TypeError, IndexError):
                     self.messages.append("Ошибка входных параметров для run: run <выбранные сервопривод текстом> <значение>")
                     return False
             else:
