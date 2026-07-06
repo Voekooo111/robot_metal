@@ -134,7 +134,7 @@ class Robot_pca(Pca):
         """Робот запускает все сервоприводы."""
         for i in range(self.count_servo):
             self.servo_run(i, self.centers[i])     
-            time.sleep(0.1)
+            time.sleep(0.2)
     
     def servo_run_name(self, name: str, value: int):
         """
