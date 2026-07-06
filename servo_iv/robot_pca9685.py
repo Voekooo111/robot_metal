@@ -141,6 +141,7 @@ class Robot_pca(Pca):
         Запуск сервопривода по названию.
         
         Args:
+            name - название сервопривода.
             value - значение, на которое надо переместить сервопривод.
         """
         if name in self.body:
@@ -153,8 +154,23 @@ class Robot_pca(Pca):
         for b_n in body_num:
             self.servo_run(b_n, 
                     self.centers[b_n] * self.servo_side[b_n] + value)
-            
-    
+
+    def servo_stop_name(self, name: str):
+        """
+        Выключение сервопривода по названию.
+        
+        Args:
+            name - название сервопривода.
+        """
+        if name in self.body:
+            body_num = self.body[name]
+            body_num = (body_num, )
+        elif name in self.bodypart:
+            body_num = self.bodypart[name]
+        else:
+            return f"{name} не существует в body и bodypart."
+        for b_n in body_num:
+            self.servo_stop(b_n)    
 
     def stand(self):
         """Робот должен встать с положения лёжа."""
