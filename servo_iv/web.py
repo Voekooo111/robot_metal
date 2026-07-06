@@ -255,9 +255,9 @@ class Site:
             if command[0] == 'run':
                 try:
                     value = int(command[2])
-                    robot.servo_run_name(self.chose_servo, value)
-                    if robot.servo_run_name(self.chose_servo, value) is not None and self.debug:
-                        self.messages.append(robot.servo_run_name(self.chose_servo, value))
+                    robot.servo_run_name(command[1], value)
+                    if robot.servo_run_name(command[1], value) is not None and self.debug:
+                        self.messages.append(robot.servo_run_name(command[1], value))
                         return True
                 except (ValueError, TypeError):
                     self.messages.append("Ошибка входных параметров для run: run <выбранные сервопривод текстом> <значение>")
