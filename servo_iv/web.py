@@ -251,7 +251,7 @@ class Site:
         Args:
             commands - команды
         """
-        for command in self.commands:
+        for command in commands:
             if command[0] == 'run':
                 try:
                     value = int(command[3])
