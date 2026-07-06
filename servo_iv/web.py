@@ -255,8 +255,8 @@ class Site:
             commands - команды
         """
         for command in commands:
-            self.execute(command)
-            self.messages.append(command, True)
+            self.execute(command, True)
+            self.messages.append(command)
 
     def execute(self, command: list[str], multy: bool = False):
         """
