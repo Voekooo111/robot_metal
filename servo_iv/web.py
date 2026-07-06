@@ -275,7 +275,7 @@ class Site:
                 try:
                     if len(command) == 2:
                         value = float(command[1])
-                        if multi:
+                        if multy:
                             time.sleep(value) # Заменить на datetime
                         return True
                     else:
