@@ -130,6 +130,8 @@ class Site:
             self.messages = []
         elif com in self.buttons:
             getattr(self, com)()
+        elif com in self.user_commands:
+            self.execute(self.user_commands[com])
         else:
             self.messages.append(com)
     
