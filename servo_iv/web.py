@@ -221,7 +221,8 @@ class Site:
             self.messages.append("end function")
             self._flag_create = False
             self._flag_name = False
-            self.user_commands[self.temp_user_commands_name] = self.temp_user_commands
+            self.user_commands[self.temp_user_commands_name] = copy.deepcopy(self.temp_user_commands)
+            self.messages.append(self.user_commands)
             self.temp_user_commands_name = None
             self.temp_user_commands = []
         else:
@@ -241,7 +242,6 @@ class Site:
         command = command.split()
         if self.execute([command], False):
             self.temp_user_commands.append(command)
-            
 #        except Exception as e:
 #            if self.debug:
 #                self.messages.append(e)
