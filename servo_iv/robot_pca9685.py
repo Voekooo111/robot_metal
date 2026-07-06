@@ -47,6 +47,8 @@ class Robot_pca(Pca):
         }
         self.count_servo = count_servo
         self.centers = [1500] * count_servo
+        self.flag_success_run = False
+        self.flag_success_stop = False
         if self.count_servo == 16:
             self.servo_side = [1, 1, -1, -1, -1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1]
         else:
@@ -144,17 +146,17 @@ class Robot_pca(Pca):
             name - название сервопривода.
             value - значение, на которое надо переместить сервопривод.
         """
+        self.flag_success_run = True
         if name in self.body:
             body_num = self.body[name]
             body_num = (body_num, )
         elif name in self.bodypart:
             body_num = self.bodypart[name]
         else:
-            return f"{name} не существует в body и bodypart."
+            self.flag_success_run = False
         for b_n in body_num:
             self.servo_run(b_n, 
                     self.centers[b_n] + value * self.servo_side[b_n])
-            return f"{b_n} - {self.centers[b_n] + value * self.servo_side[b_n]}"
 
     def servo_stop_name(self, name: str):
         """
@@ -163,16 +165,16 @@ class Robot_pca(Pca):
         Args:
             name - название сервопривода.
         """
+        self.flag_success_stop = True
         if name in self.body:
             body_num = self.body[name]
             body_num = (body_num, )
         elif name in self.bodypart:
             body_num = self.bodypart[name]
         else:
-            return f"{name} не существует в body и bodypart."
+            self.flag_success_stop = False
         for b_n in body_num:
             self.servo_stop(b_n)
-            return b_n
 
     def stand(self):
         """Робот должен встать с положения лёжа."""

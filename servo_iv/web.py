@@ -271,13 +271,15 @@ class Site:
             try:
                 if len(command) == 3:
                     value = int(command[2])
-                    if robot.servo_run_name(command[1], value) is not None and self.debug:
-                        self.messages.append(robot.servo_run_name(command[1], value))
+                    robot.servo_run_name(command[1], value)
+                    if robot.flag_success_run:
                         return True
+                    return False
                 elif len(command) == 2:
-                    if robot.servo_stop_name(command[1]) is not None and self.debug:
-                        self.messages.append(robot.servo_stop_name(command[1]))
+                    robot.servo_stop_name(command[1])
+                    if robot.flag_success_stop:
                         return True
+                    return False
                 else:
                     raise IndexError("")
             except (ValueError, TypeError, IndexError):
