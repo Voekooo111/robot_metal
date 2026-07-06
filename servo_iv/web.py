@@ -188,8 +188,6 @@ class Site:
             return None
         self._flag_calibration = True
         self._servo_define = None
-        self.chose_servo = None
-        print(robot.body[self.chose_servo]])
         self.messages.append(f"Готов к калибровке. Установлено значение - {robot.centers[robot.body[self.chose_servo]]}.")
         self.messages.append("Введите новое значение.")
 
