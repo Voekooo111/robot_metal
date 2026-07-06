@@ -255,6 +255,8 @@ class Site:
             commands - команды
         """
         for command in commands:
+            if multy:
+                self.messages.append(command)
             if len(command) < 1:
                 self.messages.append("")
             elif command[0] == 'run':
