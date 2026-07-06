@@ -237,7 +237,7 @@ class Site:
         """
 #        try:
         command = command.split()
-        if self.execute([command]):
+        if self.execute([command], False):
             self.temp_user_commands.append(command)
             
 #        except Exception as e:
@@ -245,7 +245,7 @@ class Site:
 #                self.messages.append(e)
 #            return None
     
-    def execute(self, commands: list[list[str]]):
+    def execute(self, commands: list[list[str]], multy: bool = True):
         """
         Выполняет комманды.
         
@@ -253,7 +253,9 @@ class Site:
             commands - команды
         """
         for command in commands:
-            if command[0] == 'run':
+            if len(command) < 1:
+                self.messages.append("")
+            elif command[0] == 'run':
                 try:
                     if len(command) == 3:
                         value = int(command[2])
@@ -269,10 +271,12 @@ class Site:
                 except (ValueError, TypeError, IndexError):
                     self.messages.append("Ошибка входных параметров для run: run <выбранные сервопривод текстом> <значение>")
                     return False
-            if command[0] == 'time':
+            elif command[0] == 'time':
                 try:
                     if len(command) == 2:
-                        time.sleep(float(command[1])) # Заменить на datetime
+                        value = float(command[1])
+                        if multi:
+                            time.sleep(value) # Заменить на datetime
                         return True
                     else:
                         raise IndexError
