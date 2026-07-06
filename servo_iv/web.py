@@ -132,7 +132,7 @@ class Site:
         elif com in self.buttons:
             getattr(self, com)()
         elif com in self.user_commands:
-            self.execute(self.user_commands[com])
+            self.multy_execute(self.user_commands[com])
         else:
             self.messages.append(com)
     
@@ -241,53 +241,60 @@ class Site:
         """
 #        try:
         command = command.split()
-        if self.execute([command], False):
+        if self.execute(command):
             self.temp_user_commands.append(command)
 #        except Exception as e:
 #            if self.debug:
 #                self.messages.append(e)
 #            return None
-    
-    def execute(self, commands: list[list[str]], multy: bool = True):
+    def multy_execute(self, commands: list[list[str]]):
         """
-        Выполняет комманды.
+        Выполняет несколько комманд.
         
         Args:
             commands - команды
         """
         for command in commands:
-            if multy:
-                self.messages.append(command)
-            if len(command) < 1:
-                self.messages.append("")
-            elif command[0] == 'run':
-                try:
-                    if len(command) == 3:
-                        value = int(command[2])
-                        if robot.servo_run_name(command[1], value) is not None and self.debug:
-                            self.messages.append(robot.servo_run_name(command[1], value))
-                    elif len(command) == 2:
-                        if robot.servo_stop_name(command[1]) is not None and self.debug:
-                            self.messages.append(robot.servo_stop_name(command[1]))
-                    else:
-                        raise IndexError("")
-                except (ValueError, TypeError, IndexError):
-                    self.messages.append("Ошибка входных параметров для run: run <выбранные сервопривод текстом> <значение>")
-                    return False
-            elif command[0] == 'time':
-                try:
-                    if len(command) == 2:
-                        value = float(command[1])
-                        if multy:
-                            time.sleep(value) # Заменить на datetime
-                    else:
-                        raise IndexError
-                except (ValueError, TypeError, IndexError):
-                    self.messages.append("Ошибка входных параметров для run: run <выбранные сервопривод текстом> <значение>")
-                    return False
-            else:
-                self.messages.append("Ошибка. Команда не найдена.")
+            self.execute(command)
+            self.messages.append(command, True)
+
+    def execute(self, command: list[str], multy: bool = False):
+        """
+        Выполняет комманды.
+        
+        Args:
+            command - команда
+        """ 
+        if len(command) < 1:
+            self.messages.append("")
+        elif command[0] == 'run':
+            try:
+                if len(command) == 3:
+                    value = int(command[2])
+                    if robot.servo_run_name(command[1], value) is not None and self.debug:
+                        self.messages.append(robot.servo_run_name(command[1], value))
+                elif len(command) == 2:
+                    if robot.servo_stop_name(command[1]) is not None and self.debug:
+                        self.messages.append(robot.servo_stop_name(command[1]))
+                else:
+                    raise IndexError("")
+            except (ValueError, TypeError, IndexError):
+                self.messages.append("Ошибка входных параметров для run: run <выбранные сервопривод текстом> <значение>")
                 return False
+        elif command[0] == 'time':
+            try:
+                if len(command) == 2:
+                    value = float(command[1])
+                    if multy:
+                        time.sleep(value) # Заменить на datetime
+                else:
+                    raise IndexError
+            except (ValueError, TypeError, IndexError):
+                self.messages.append("Ошибка входных параметров для run: run <выбранные сервопривод текстом> <значение>")
+                return False
+        else:
+            self.messages.append("Ошибка. Команда не найдена.")
+            return False
         
 
     def servo_run(self, value: int):
