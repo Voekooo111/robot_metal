@@ -104,7 +104,8 @@ class Site:
             user_buttons = list(self.user_commands.keys()),
             flag_calibration = self._flag_calibration,
             flag_create = self._flag_create,
-            robot_words=self.robot_words,
+            robot_words = self.robot_words,
+            robot_parts = list(robot.body),
         )
     
     def commands(self, com: str):

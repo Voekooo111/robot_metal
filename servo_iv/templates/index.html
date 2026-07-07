@@ -12,6 +12,10 @@
     href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/hint/show-hint.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/comment/comment.min.js"></script>
+    <link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/selection/active-line.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
 </head>
 
 <body>
@@ -215,6 +219,7 @@ function deleteUserButton(buttonName){
 }
 
 const robotWords = {{ robot_words|tojson }};
+const robotParts = {{ robot_parts|tojson }};
 
 CodeMirror.registerHelper(
 "hint",
@@ -269,6 +274,8 @@ CodeMirror.defineMode("robot", function () {
 
                 if(robotWords.includes(word))
                     return "keyword";
+                if(robotParts.includes(word))
+                    return "def";
 
                 return "variable";
             }
@@ -288,6 +295,12 @@ if(textarea){
     {
         mode:"robot",
 
+        theme:"dracula",
+
+        styleActiveLine:true,
+
+        autoCloseBrackets:true,
+        
         lineNumbers:true,
 
         matchBrackets:true,

@@ -32,25 +32,30 @@ body {
    ========================== */
 
 .cm-keyword{
-    color:#ffae42;
+    color:#ff79c6;      /* розовый */
+    font-weight:bold;
+}
+
+.cm-def{
+    color:#50fa7b;      /* зелёный */
     font-weight:bold;
 }
 
 .cm-number{
-    color:#44d17a;
+    color:#bd93f9;      /* фиолетовый */
 }
 
 .cm-string{
-    color:#ffd966;
+    color:#f1fa8c;      /* жёлтый */
 }
 
 .cm-comment{
-    color:#888;
+    color:#6272a4;      /* серо-синий */
     font-style:italic;
 }
 
 .cm-variable{
-    color:#7ec8ff;
+    color:#f8f8f2;      /* почти белый */
 }
 
 .chat {
@@ -212,9 +217,8 @@ body {
 
 .create-panel {
 
-    display: grid;
-
-    grid-template-rows: auto 1fr;
+    display: flex;
+    flex-direction: column;
 
     gap: 20px;
 
@@ -223,6 +227,28 @@ body {
     min-height: 0;
 
     overflow: hidden;
+}
+
+.CodeMirror {
+
+    flex: 1;
+
+    width: 100%;
+    height: 100% !important;
+
+    min-height: 0;
+
+    border-radius: 12px;
+    border-radius:12px;
+    border:1px solid #3b4252;
+}
+
+.CodeMirror-focused{
+    box-shadow:0 0 10px rgba(80,250,123,.25);
+}
+
+.CodeMirror-gutters {
+    border-right: 1px solid #444;
 }
 
 .function-name{
