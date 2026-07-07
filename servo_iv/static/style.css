@@ -284,7 +284,11 @@ body {
 }
 
 .CodeMirror-activeline-background {
-    background:#2a2d2e;
+    background: rgba(255,255,255,0.05) !important;
+}
+
+.CodeMirror-activeline-gutter {
+    background:#303030 !important;
 }
 
 .CodeMirror-matchingbracket {

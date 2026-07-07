@@ -101,11 +101,11 @@ class Site:
             "index.html",
             message = self.messages,
             buttons = self.buttons,
-            user_buttons = list(self.user_commands.keys()),
+            user_buttons = list(self.user_commands),
             flag_calibration = self._flag_calibration,
             flag_create = self._flag_create,
             robot_words = self.robot_words,
-            robot_parts = list(robot.body),
+            robot_parts = list(robot.body) + list(robot.bodypart),
         )
     
     def commands(self, com: str):
