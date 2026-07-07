@@ -26,47 +26,48 @@
 
     {% if flag_create %}
 
-        <div class="create-panel">
+    <div class="create-panel">
 
-            <input
-                type="text"
-                name="function_name"
-                class="function-name"
-                placeholder="Впишите название функции">
+        <input
+            type="text"
+            name="function_name"
+            class="function-name"
+            placeholder="Впишите название функции">
 
-            <textarea
-                name="function_body"
-                class="function-body"
-                placeholder="Функция..."></textarea>
+        <textarea
+            name="function_body"
+            class="function-body"
+            placeholder="Функция..."></textarea>
 
-            <input
-                id="chatInput"
-                type="text"
-                name="text"
-                placeholder="Type..."
-                autocomplete="off">
+    </div>
 
-        </div>
+    <div class="input">
+        <input
+            id="chatInput"
+            type="text"
+            name="text"
+            placeholder="Type..."
+            autocomplete="off">
+    </div>
 
     {% else %}
 
-        <div class="message" id="messages">
-            {% for m in message %}
-                <div class="msg">{{ m }}</div>
-            {% endfor %}
-        </div>
+    <div class="message" id="messages">
+        {% for m in message %}
+            <div class="msg">{{ m }}</div>
+        {% endfor %}
+    </div>
 
-        <div class="input">
-            <input
-                id="chatInput"
-                type="text"
-                name="text"
-                placeholder="Type..."
-                autocomplete="off">
-        </div>
+    <div class="input">
+        <input
+            id="chatInput"
+            type="text"
+            name="text"
+            placeholder="Type..."
+            autocomplete="off">
+    </div>
 
     {% endif %}
-
     </div>
 
     <!-- ==========================
