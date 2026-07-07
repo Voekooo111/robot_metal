@@ -37,12 +37,12 @@ body {
 }
 
 .cm-def{
-    color:#50fa7b;      /* зелёный */
+    color:#BB86FC;
     font-weight:bold;
 }
 
 .cm-number{
-    color:#bd93f9;      /* фиолетовый */
+    color:#5AC8FA;
 }
 
 .cm-string{

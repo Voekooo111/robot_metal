@@ -236,7 +236,9 @@ function(cm){
 
     const word = token.string;
 
-    const list = robotWords.filter(
+    const robotHints = [...robotWords, ...robotParts];
+
+    const list = robotHints.filter(
         x => x.startsWith(word)
     );
 
