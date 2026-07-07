@@ -3,7 +3,6 @@ from .robot_object import robot
 import pickle
 import time
 import csv
-import subprocess
 import copy
 
 class Exit(Exception):
@@ -65,8 +64,6 @@ class Site:
             delete_ser_button = request.form.get("delete")
             if text == "stop":
                 self.stop()
-            elif text == "shutdown":
-                subprocess.run(["shutdown", "-h", "now"])
             elif text == "begin":
                 self._flag_create = False
                 self.create()
