@@ -35,6 +35,7 @@ http://\<hostname\>.local - подключение к raspberry.
 #### venv
 ```bash
 sudo apt install python3 python3-venv python3-pip -y
+sudo apt install python3-lgpio -y
 python3 -m venv --system-site-packages venv
 source venv/bin/activate
 ```
