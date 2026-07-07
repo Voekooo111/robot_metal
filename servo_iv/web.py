@@ -15,6 +15,7 @@ class Site:
         self.messages = []
         self.buttons = ["documentation", "define", "calibration", "stand", "full", "sleep", "create", "stop", "clear"]
         self.servo_side = [1, 1, 1, -1, -1, -1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1]
+        self.temp_name = 0
         self.chose_servo = None
         self._flag_calibration = False
         self._flag_create = False
@@ -66,7 +67,10 @@ class Site:
             elif text == "begin":
                 self._flag_create = False
                 self.create()
-            elif function_name != "" and function_body != "" and (text == "save" or text == "end"):
+            elif function_body != "" and (text == "save" or text == "end"):
+                if function_name == "":
+                    function_name = str(self.temp_name)
+                    self.temp_name += 1
                 self.create_function(function_name, function_body)
             elif self._flag_calibration and text:
                 try:
