@@ -66,7 +66,7 @@ class Site:
             elif text == "begin":
                 self._flag_create = False
                 self.create()
-            elif function_name is not None and function_body is not None and (text == "save" or text == "end"):
+            elif function_name != "" and function_body != "" and (text == "save" or text == "end"):
                 self.create_function(function_name, function_body)
             elif self._flag_calibration and text:
                 try:
