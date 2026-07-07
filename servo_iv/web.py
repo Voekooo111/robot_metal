@@ -27,15 +27,6 @@ class Site:
             "run",
             "wait",
         ]
-        self.flip = render_template(
-            "index.html",
-            message = self.messages,
-            buttons = self.buttons,
-            user_buttons = list(self.user_commands.keys()),
-            flag_calibration = self._flag_calibration,
-            flag_create = self._flag_create,
-            robot_words=self.robot_words,
-        )
 
         self.app.add_url_rule(
             "/",
@@ -106,7 +97,15 @@ class Site:
             elif btn:
                 self.commands(btn)
             return redirect(url_for("index"))
-        return self.flip
+        return render_template(
+            "index.html",
+            message = self.messages,
+            buttons = self.buttons,
+            user_buttons = list(self.user_commands.keys()),
+            flag_calibration = self._flag_calibration,
+            flag_create = self._flag_create,
+            robot_words=self.robot_words,
+        )
     
     def commands(self, com: str):
         """
