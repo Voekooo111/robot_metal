@@ -31,6 +31,28 @@ body {
    CHAT
    ========================== */
 
+.cm-keyword{
+    color:#ffae42;
+    font-weight:bold;
+}
+
+.cm-number{
+    color:#44d17a;
+}
+
+.cm-string{
+    color:#ffd966;
+}
+
+.cm-comment{
+    color:#888;
+    font-style:italic;
+}
+
+.cm-variable{
+    color:#7ec8ff;
+}
+
 .chat {
     display: grid;
     grid-template-rows: 1fr auto;

@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/hint/show-hint.min.js"></script>
+    <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/hint/show-hint.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/comment/comment.min.js"></script>
 </head>
 
 <body>
@@ -36,7 +44,7 @@
 
         <textarea
             name="function_body"
-            class="function-body"
+            id="functionBody"
             placeholder="Функция..."></textarea>
 
     </div>
@@ -191,7 +199,8 @@ window.onload = function () {
 
     const input = document.getElementById("chatInput");
 
-    input.focus();
+    if(input)
+        input.focus();
 
     imageMapResize();
 };
@@ -203,6 +212,107 @@ function deleteUserButton(buttonName){
 
     document.getElementById("deleteField").value = buttonName;
     document.getElementById("mainForm").submit();
+}
+
+const robotWords = {{ robot_words|tojson }};
+
+CodeMirror.registerHelper(
+"hint",
+"robot",
+function(cm){
+
+    const cursor = cm.getCursor();
+
+    const token = cm.getTokenAt(cursor);
+
+    const start = token.start;
+
+    const end = cursor.ch;
+
+    const word = token.string;
+
+    const list = robotWords.filter(
+        x => x.startsWith(word)
+    );
+
+    return {
+
+        list:list,
+
+        from:CodeMirror.Pos(cursor.line,start),
+
+        to:CodeMirror.Pos(cursor.line,end)
+    };
+});
+
+CodeMirror.defineMode("robot", function () {
+
+    return {
+
+        token: function(stream){
+
+            if(stream.eatSpace())
+                return null;
+
+            if(stream.match(/#[^\n]*/))
+                return "comment";
+
+            if(stream.match(/".*?"/))
+                return "string";
+
+            if(stream.match(/[0-9]+/))
+                return "number";
+
+            if(stream.match(/[A-Za-z_][A-Za-z0-9_]*/)){
+
+                const word = stream.current();
+
+                if(robotWords.includes(word))
+                    return "keyword";
+
+                return "variable";
+            }
+
+            stream.next();
+
+            return null;
+        }
+    };
+});
+
+const textarea = document.getElementById("functionBody");
+if(textarea){
+
+    const editor = CodeMirror.fromTextArea(
+    document.getElementById("functionBody"),
+    {
+        mode:"robot",
+
+        lineNumbers:true,
+
+        matchBrackets:true,
+
+        indentUnit:4,
+
+        tabSize:4,
+
+        lineWrapping:true,
+
+        extraKeys:{
+            Tab:function(cm){
+                cm.execCommand("autocomplete");
+            }
+        }
+    });
+
+    editor.on("inputRead",function(cm){
+
+        cm.showHint({
+            completeSingle:false
+        });
+
+    });
+
 }
 </script>
 

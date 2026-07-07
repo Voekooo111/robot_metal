@@ -23,6 +23,19 @@ class Site:
         self.temp_user_commands = []
         self.temp_user_commands_name = None
         self.user_commands = dict()
+        self.robot_words = [
+            "run",
+            "wait",
+        ]
+        self.flip = render_template(
+            "index.html",
+            message = self.messages,
+            buttons = self.buttons,
+            user_buttons = list(self.user_commands.keys()),
+            flag_calibration = self._flag_calibration,
+            flag_create = self._flag_create,
+            robot_words=self.robot_words,
+        )
 
         self.app.add_url_rule(
             "/",
@@ -93,15 +106,7 @@ class Site:
             elif btn:
                 self.commands(btn)
             return redirect(url_for("index"))
-
-        return render_template(
-            "index.html",
-            message = self.messages,
-            buttons = self.buttons,
-            user_buttons = list(self.user_commands.keys()),
-            flag_calibration = self._flag_calibration,
-            flag_create = self._flag_create,
-        )
+        return self.flip
     
     def commands(self, com: str):
         """
@@ -251,7 +256,7 @@ class Site:
             except (ValueError, TypeError, IndexError):
                 self.messages.append("Ошибка входных параметров для run: run <выбранные сервопривод текстом> <значение>")
                 return False
-        elif command[0] == 'time':
+        elif command[0] == 'wait':
             try:
                 if len(command) == 2:
                     value = float(command[1])
