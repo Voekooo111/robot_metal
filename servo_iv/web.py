@@ -72,7 +72,7 @@ class Site:
                     function_name = str(self.temp_name)
                     self.temp_name += 1
                 self.create_function(function_name, function_body)
-            elif text == "save":
+            elif text == "save" or (btn == "create" and self._flag_create):
                 self._flag_create = False
             elif self._flag_calibration and text:
                 try:
