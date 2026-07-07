@@ -18,7 +18,6 @@ class Site:
         self.chose_servo = None
         self._flag_calibration = False
         self._flag_create = False
-        self._flag_name = False
         self.debug = True
         self._servo_define = None
         self.temp_user_commands = []
@@ -53,6 +52,8 @@ class Site:
 
         if request.method == "POST":
             text = request.form.get("text")
+            function_name = request.form.get("function_name")
+            function_body = request.form.get("function_body")
             btn = request.form.get("button_click")
             area = request.form.get("area_click")
             delete_ser_button = request.form.get("delete")
@@ -61,26 +62,8 @@ class Site:
             elif text == "begin":
                 self._flag_create = False
                 self.create()
-            elif text == "end":
-                self._flag_create = True
-                self.create()
-            elif self._flag_create and self.temp_user_commands_name is None:
-                if text not in self.buttons and text not in list(self.user_commands.keys()):
-                    self.temp_user_commands_name = text
-                    self.messages.append(f"Название: {text}.")
-                else:
-                    self.messages.append("Введите название функции, которое не повторяется.")
-                    return render_template(
-                                "index.html",
-                                message = self.messages,
-                                buttons = self.buttons,
-                                user_buttons = list(self.user_commands.keys()),
-                                flag_calibration = self._flag_calibration,
-                                flag_create = self._flag_create,
-                            )
-            elif self._flag_create and btn != "create":
-                self.messages.append(text)
-                self.create_function(text)
+            elif function_name is not None and function_body is not None and (text == "save" or text == "end"):
+                self.create_function(function_name, function_body)
             elif self._flag_calibration and text:
                 try:
                     self.messages.append(f"Введено число: {text}.")
@@ -216,37 +199,18 @@ class Site:
     
     def create(self):
         """Создание функции."""
-        self.messages.extend(["", ""])
+        self.messages.append("")
         self._flag_calibration = False
-        if self._flag_create:
-            self.messages.append("end function")
-            self._flag_create = False
-            self._flag_name = False
-            self.user_commands[self.temp_user_commands_name] = copy.deepcopy(self.temp_user_commands)
-            self.messages.append(self.user_commands)
-            self.temp_user_commands_name = None
-            self.temp_user_commands = []
-        else:
-            self.messages.append("begin function")
-            self.messages.append("Введите название функции.")
-            self._flag_create = True
-            self._flag_name = True
+        self.messages.append("begin function")
+        self._flag_create = True
     
-    def create_function(self, command: str):
-        """
-        Создание функции по тексту
-        
-        Args:
-            command - команда
-        """
-#        try:
-        command = command.split()
-        if self.execute(command):
-            self.temp_user_commands.append(command)
-#        except Exception as e:
-#            if self.debug:
-#                self.messages.append(e)
-#            return None
+    def create_function(self, name, com):
+        com = [c.split() for c in com.splitlines()]
+        self.multy_execute(com)
+        self.user_commands[name] = com
+        self.messages.append(f"Функция {name} создана.")
+        self._flag_create = False
+
     def multy_execute(self, commands: list[list[str]]):
         """
         Выполняет несколько комманд.
@@ -255,8 +219,10 @@ class Site:
             commands - команды
         """
         for command in commands:
-            self.execute(command, True)
             self.messages.append(command)
+            if not self.execute(command, True):
+                self.messages.append("^^^^Ошибка. Команда не найдена^^^^")
+            
 
     def execute(self, command: list[str], multy: bool = False):
         """

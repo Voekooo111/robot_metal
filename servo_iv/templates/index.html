@@ -24,6 +24,32 @@
 
     <div class="chat">
 
+    {% if flag_create %}
+
+        <div class="create-panel">
+
+            <input
+                type="text"
+                name="function_name"
+                class="function-name"
+                placeholder="Впишите название функции">
+
+            <textarea
+                name="function_body"
+                class="function-body"
+                placeholder="Функция..."></textarea>
+
+            <input
+                id="chatInput"
+                type="text"
+                name="text"
+                placeholder="Type..."
+                autocomplete="off">
+
+        </div>
+
+    {% else %}
+
         <div class="message" id="messages">
             {% for m in message %}
                 <div class="msg">{{ m }}</div>
@@ -31,12 +57,15 @@
         </div>
 
         <div class="input">
-            <input id="chatInput"
-                   type="text"
-                   name="text"
-                   placeholder="Type..."
-                   autocomplete="off">
+            <input
+                id="chatInput"
+                type="text"
+                name="text"
+                placeholder="Type..."
+                autocomplete="off">
         </div>
+
+    {% endif %}
 
     </div>
 
