@@ -72,6 +72,8 @@ class Site:
                     function_name = str(self.temp_name)
                     self.temp_name += 1
                 self.create_function(function_name, function_body)
+            elif text == "save":
+                self._flag_create = False
             elif self._flag_calibration and text:
                 try:
                     self.messages.append(f"Введено число: {text}.")
