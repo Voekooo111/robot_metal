@@ -109,7 +109,7 @@ class Site:
             flag_calibration = self._flag_calibration,
             flag_create = self._flag_create,
             robot_words = self.robot_words,
-            robot_parts = list(robot.body) + list(robot.bodypart),
+            robot_parts = list(robot.bodypart) + list(robot.body),
         )
     
     def commands(self, com: str):
