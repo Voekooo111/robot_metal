@@ -112,7 +112,13 @@ class Commands:
             self.function_name_for_push = edit
             self.function_body_for_push = "\n".join(" ".join(u_c) for u_c in self.user_commands[edit])
             self.user_commands.pop(edit)
-        
+
+        elif area:
+            print("area пролет")
+            self.site.messages.append(area)
+        elif text:
+            print("text пролет")
+            self.site.messages.append(text)
         elif btn in self.default_btn_commands:
             print("btn_self.default_btn_commands")
             self.default_btn_commands[btn]()
@@ -125,14 +131,8 @@ class Commands:
             print("btn_self.default_commands")
             self.multy_execute(self.user_commands[btn])
 
-        elif area:
-            print("area пролет")
-            self.site.messages.append(area)
-        elif text:
-            print("text пролет")
-            self.site.messages.append(text)
         elif btn:
-            print("text пролет")
+            print("btn пролет")
             self.site.messages.append(btn)
         print("-")
 
