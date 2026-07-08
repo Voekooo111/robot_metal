@@ -39,8 +39,8 @@ class Site:
         return render_template(
             "index.html",
             message = self.messages,
-            buttons = self.commands.default_btn_self.commands.keys(),
-            user_buttons = self.commands.user_self.commands.keys(),
+            buttons = self.commands.default_btn_commands.keys(),
+            user_buttons = self.commands.user_commands.keys(),
             flag_calibration = self.commands._flag_calibration,
             flag_create = self.commands._flag_create,
             robot_words = self.commands.default_commands,
