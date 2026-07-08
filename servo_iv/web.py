@@ -39,12 +39,12 @@ class Site:
         return render_template(
             "index.html",
             message = self.messages,
-            buttons = self.commands.default_btn_commands.keys(),
-            user_buttons = self.commands.user_commands.keys(),
+            buttons = list(self.commands.default_btn_commands),
+            user_buttons = list(self.commands.user_commands),
             flag_calibration = self.commands._flag_calibration,
             flag_create = self.commands._flag_create,
             robot_words = self.commands.default_commands,
-            robot_parts = self.robot.bodypart.keys() + self.robot.body.keys(),
+            robot_parts = list(self.robot.bodypart) + list(self.robot.body),
         )
 
     def run(self):
