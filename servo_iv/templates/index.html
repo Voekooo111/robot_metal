@@ -405,6 +405,11 @@ if(textarea){
             }
         }
     });
+    editor.refresh();
+
+    setTimeout(() => {
+        imageMapResize();
+    }, 500);
     
     function resizeMap(){
         if(window.imageMapResize){
