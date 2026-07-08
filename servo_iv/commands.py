@@ -48,10 +48,6 @@ class Commands:
         }
         self.user_commands = dict()
         self.temp_name = 0
-        self.temp_user_commands = []
-        self.temp_user_commands_name = None
-
-        self.servo_side = [-1, -1, -1, 1, 1, 1, -1, -1, 1, 1, 1, 1, 1, -1, -1, -1]
         self.chose_servo = None
         self._flag_calibration = False
         self._flag_create = False
