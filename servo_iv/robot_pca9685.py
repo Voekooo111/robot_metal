@@ -36,14 +36,14 @@ class Robot_pca(Pca):
         self.bodypart: dict[str, None | tuple] = {
             'hand' : tuple(range(6)), 
             'leg' : tuple(range(6, count_servo)),
-            'hand_0': (0, 3),
-            'hand_1': (1, 4),
-            'hand_2': (2, 5),
-            'leg_0' : (6, 11),
-            'leg_1' : (7, 12),
-            'leg_2' : (8, 13),
-            'leg_3' : (9, 14),
-            'leg_4' : (10, 15),
+            'hand_0': (self.body['hand_left_0'], self.body['hand_right_0']),
+            'hand_1': (self.body['hand_left_1'], self.body['hand_right_1']),
+            'hand_2': (self.body['hand_left_2'], self.body['hand_right_2']),
+            'leg_0' : (self.body['leg_left_0'], self.body['leg_right_0']),
+            'leg_1' : (self.body['leg_left_1'], self.body['leg_right_1']),
+            'leg_2' : (self.body['leg_left_2'], self.body['leg_right_2']),
+            'leg_3' : (self.body['leg_left_3'], self.body['leg_right_3']),
+            'leg_4' : (self.body['leg_left_4'], self.body['leg_right_4']),
         }
         self.count_servo = count_servo
         self.centers = [1500] * count_servo
