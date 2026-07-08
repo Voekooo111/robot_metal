@@ -121,27 +121,27 @@
 
             <map name="image-map">
 
-                <area href="/?area=hand_right_0" title="hand_right_0" coords="80,298,224,206" shape="rect">
-                <area href="/?area=hand_right_1" title="hand_right_1" coords="294,282,438,194" shape="rect">
-                <area href="/?area=hand_right_2" title="hand_right_2" coords="493,266,594,118" shape="rect">
+                <area href="#" onclick="addArea('hand_right_0'); return false;" title="hand_right_0" coords="80,298,224,206" shape="rect">
+                <area href="#" onclick="addArea('hand_right_1'); return false;" title="hand_right_1" coords="294,282,438,194" shape="rect">
+                <area href="#" onclick="addArea('hand_right_2'); return false;" title="hand_right_2" coords="493,266,594,118" shape="rect">
 
-                <area href="/?area=hand_left_0" title="hand_left_0" coords="1069,200,1204,292" shape="rect">
-                <area href="/?area=hand_left_1" title="hand_left_1" coords="834,278,982,198" shape="rect">
-                <area href="/?area=hand_left_2" title="hand_left_2" coords="696,261,803,132" shape="rect">
+                <area href="#" onclick="addArea('hand_left_0'); return false;" title="hand_left_0" coords="1069,200,1204,292" shape="rect">
+                <area href="#" onclick="addArea('hand_left_1'); return false;" title="hand_left_1" coords="834,278,982,198" shape="rect">
+                <area href="#" onclick="addArea('hand_left_2'); return false;" title="hand_left_2" coords="696,261,803,132" shape="rect">
 
-                <area href="/?area=leg_right_0" title="leg_right_0" coords="492,997,622,1071" shape="rect">
-                <area href="/?area=leg_right_1" title="leg_right_1" coords="495,973,604,902" shape="rect">
-                <area href="/?area=leg_right_2" title="leg_right_2" coords="507,849,595,703" shape="rect">
-                <area href="/?area=leg_right_3" title="leg_right_3" coords="597,546,499,694" shape="rect">
-                <area href="/?area=leg_right_4" title="leg_right_4" coords="492,454,624,372" shape="rect">
+                <area href="#" onclick="addArea('leg_right_0'); return false;" title="leg_right_0" coords="492,997,622,1071" shape="rect">
+                <area href="#" onclick="addArea('leg_right_1'); return false;" title="leg_right_1" coords="495,973,604,902" shape="rect">
+                <area href="#" onclick="addArea('leg_right_2'); return false;" title="leg_right_2" coords="507,849,595,703" shape="rect">
+                <area href="#" onclick="addArea('leg_right_3'); return false;" title="leg_right_3" coords="597,546,499,694" shape="rect">
+                <area href="#" onclick="addArea('leg_right_4'); return false;" title="leg_right_4" coords="492,454,624,372" shape="rect">
 
-                <area href="/?area=leg_left_0" title="leg_left_0" coords="663,1069,789,998" shape="rect">
-                <area href="/?area=leg_left_1" title="leg_left_1" coords="678,965,786,901" shape="rect">
-                <area href="/?area=leg_left_2" title="leg_left_2" coords="680,836,776,701" shape="rect">
-                <area href="/?area=leg_left_3" title="leg_left_3" coords="681,689,775,542" shape="rect">
-                <area href="/?area=leg_left_4" title="leg_left_4" coords="796,370,664,459" shape="rect">
+                <area href="#" onclick="addArea('leg_left_0'); return false;" title="leg_left_0" coords="663,1069,789,998" shape="rect">
+                <area href="#" onclick="addArea('leg_left_1'); return false;" title="leg_left_1" coords="678,965,786,901" shape="rect">
+                <area href="#" onclick="addArea('leg_left_2'); return false;" title="leg_left_2" coords="680,836,776,701" shape="rect">
+                <area href="#" onclick="addArea('leg_left_3'); return false;" title="leg_left_3" coords="681,689,775,542" shape="rect">
+                <area href="#" onclick="addArea('leg_left_4'); return false;" title="leg_left_4" coords="796,370,664,459" shape="rect">
 
-                <area href="/?area=hand" title="head" coords="610,132,669,5" shape="rect">
+                <area href="#" onclick="addArea('head'); return false;" title="head" coords="610,132,669,5" shape="rect">
 
             </map>
 
@@ -231,16 +231,49 @@ function deleteUserButton(buttonName){
         return;
 
     document.getElementById("deleteField").value = buttonName;
-    document.getElementById("mainForm").submit();
+    document.getElementById("mainForm").requestSubmit();
 }
 
 function editUserButton(name){
 
     document.getElementById("editField").value = name;
 
-    document.getElementById("mainForm").submit();
+    document.getElementById("mainForm").requestSubmit();
 
 }
+
+function addArea(area){
+
+    const input = document.getElementById("chatInput");
+
+    if(input){
+
+        if(input.value.length)
+            input.value += " ";
+
+        input.value += area;
+    }
+
+    if(editor){
+
+        const doc = editor.getDoc();
+        const cursor = doc.getCursor();
+
+        const line = doc.getLine(cursor.line);
+
+        const needSpace =
+            cursor.ch > 0 &&
+            !/\s/.test(line[cursor.ch-1]);
+
+        doc.replaceRange(
+            (needSpace ? " " : "") + area,
+            cursor
+        );
+
+        editor.focus();
+    }
+}
+
 
 const robotWords = {{ robot_words|tojson }};
 const robotParts = {{ robot_parts|tojson }};
@@ -313,12 +346,15 @@ CodeMirror.defineMode("robot", function () {
     };
 });
 
+let editor = null;
+
 const textarea = document.getElementById("functionBody");
+
 if(textarea){
 
-    const editor = CodeMirror.fromTextArea(
-    document.getElementById("functionBody"),
-    {
+    editor = CodeMirror.fromTextArea(
+        textarea,
+        {
         mode:"robot",
         
         theme:"dark",
@@ -342,18 +378,28 @@ if(textarea){
                 cm.execCommand("autocomplete");
             },
 
-            "Ctrl-S":function(cm){
+            "Ctrl-S": function(cm){
 
-                cm.save(); // записывает содержимое CodeMirror обратно в textarea
-                document.getElementById("action").value = "save";
-                document.getElementById("mainForm").submit();
-            },
+                cm.save();
+
+                const action = document.getElementById("action");
+                action.value = "save";
+
+                document.getElementById("mainForm").requestSubmit();
+
+                action.value = "";
+            }
 
             "Cmd-S":function(cm){ // для macOS
 
                 cm.save();
-                document.getElementById("action").value = "save";
-                document.getElementById("mainForm").submit();
+
+                const action = document.getElementById("action");
+                action.value = "save";
+
+                document.getElementById("mainForm").requestSubmit();
+
+                action.value = "";
             }
         }
     });
