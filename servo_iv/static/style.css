@@ -43,6 +43,12 @@ body {
     font-weight:bold;
 }
 
+.cm-keyword_btn{
+
+    color:#5b0083;
+    font-weight:bold;
+}
+
 .cm-number{
 
     color:#FF8A80;

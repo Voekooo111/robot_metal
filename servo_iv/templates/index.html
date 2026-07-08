@@ -279,6 +279,7 @@ function addArea(area){
 
 const robotWords = {{ robot_words|tojson }};
 const robotParts = {{ robot_parts|tojson }};
+const robotBtnWords = {{ robot_btn_words|tojson }};
 
 CodeMirror.registerHelper(
 "hint",
@@ -295,7 +296,7 @@ function(cm){
 
     const word = token.string;
 
-    const robotHints = [...robotWords, ...robotParts];
+    const robotHints = [...robotWords, ...robotParts, ...robotBtnWords];
 
     const list = robotHints.filter(
         x => x.startsWith(word)
@@ -337,6 +338,8 @@ CodeMirror.defineMode("robot", function () {
                     return "keyword";
                 if(robotParts.includes(word))
                     return "def";
+                if(robotBtnWords.includes(word))
+                    return "keyword_btn"
 
                 return "variable";
             }

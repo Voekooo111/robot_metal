@@ -56,6 +56,7 @@ class Site:
             flag_create = self.commands._flag_create,
             robot_words = list(self.commands.default_commands) + ["end"],
             robot_parts = list(self.robot.bodypart) + list(self.robot.body),
+            robot_btn_words = list(self.commands.default_btn_commands),
             function_name = self.commands.function_name_for_push,
             function_body = self.commands.function_body_for_push,
         )
