@@ -249,7 +249,7 @@ class Commands:
         if len(command) < 1:
             self.site.messages.append("")
         elif command[0] in self.default_commands:
-            self.default_commands[command[0]]()
+            self.default_commands[command[0]](command)
         else:
             self.site.messages.append("Ошибка. Команда не найдена.")
             return False
