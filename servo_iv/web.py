@@ -35,7 +35,7 @@ class Site:
             delete_ser_button = request.form.get("delete")
             self.commands.post_query(text, function_name, function_body, btn, area, delete_ser_button)
             return redirect(url_for("index"))
-        
+        print("Сайт готов.")
         return render_template(
             "index.html",
             message = self.messages,

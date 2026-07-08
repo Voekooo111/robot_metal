@@ -73,18 +73,19 @@ class Commands:
             self.multy_execute(self.user_commands[text])
 
         elif btn in self.default_btn_commands:
-            print("self.default_btn_commands")
+            print("btn_self.default_btn_commands")
             self.default_btn_commands[btn]()
 
         elif btn in self.user_commands:
-            print("self.user_commands")
+            print("btn_self.user_commands")
             self.multy_execute(self.user_commands[btn])
         
         elif btn in self.default_commands:
-            print("self.default_commands")
+            print("btn_self.default_commands")
             self.multy_execute(self.user_commands[btn])
 
         elif text == "begin":
+            print("begin")
             self.create()
         
         elif function_body != "" and (text == "save" or text == "end"):
@@ -101,19 +102,25 @@ class Commands:
             self._flag_create = False
 
         elif self._flag_calibration and text:
+            print("калибровка")
             self.try_calibration(text)
             
         elif delete_ser_button:
+            print("удаление")
             if delete_ser_button in self.user_commands:
                 self.user_commands.pop(delete_ser_button, "Not Found")
             else:
                 self.site.messages.append("Ошибка. Функция не найдена.")
         elif area:
+            print("area пролет")
             self.site.messages.append(area)
         elif text:
+            print("text пролет")
             self.site.messages.append(text)
         elif btn:
+            print("text пролет")
             self.site.messages.append(btn)
+        print("-")
 
     
     def documentation(self):
