@@ -107,8 +107,8 @@ class Commands:
         elif edit:
             self._flag_create = True
             self.function_name_for_push = edit
-            self.user_commands.pop(edit)
             self.function_body_for_push = "\n".join(" ".join(u_c) for u_c in self.user_commands[edit])
+            self.user_commands.pop(edit)
         
         elif btn in self.default_btn_commands:
             print("btn_self.default_btn_commands")
