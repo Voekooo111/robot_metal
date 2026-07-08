@@ -30,6 +30,11 @@
         id="editField"
         name="edit"
         value="">
+    <input
+        type="hidden"
+        id="action"
+        name="action"
+        value="">
 
 <div class="grid">
 
@@ -335,6 +340,20 @@ if(textarea){
         extraKeys:{
             Tab:function(cm){
                 cm.execCommand("autocomplete");
+            },
+
+            "Ctrl-S":function(cm){
+
+                cm.save(); // записывает содержимое CodeMirror обратно в textarea
+                document.getElementById("action").value = "save";
+                document.getElementById("mainForm").submit();
+            },
+
+            "Cmd-S":function(cm){ // для macOS
+
+                cm.save();
+                document.getElementById("action").value = "save";
+                document.getElementById("mainForm").submit();
             }
         }
     });

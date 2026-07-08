@@ -61,7 +61,8 @@ class Commands:
             else:
                 self.define()
 
-    def post_query(self, text, function_name, function_body, btn, area, delete_ser_button, edit):
+    def post_query(self, text, function_name, function_body, btn, 
+                   area, delete_ser_button, edit, action):
         """Post-запрос"""
         if text in self.default_btn_commands:
             print("self.default_btn_commands")
@@ -79,7 +80,7 @@ class Commands:
             print("begin")
             self.create()
         
-        elif function_body != "" and (text == "save" or text == "end"):
+        elif function_body != "" and (text == "save" or text == "end" or action == "save"):
             print("сохранение текста в редакторе")
             # сохранение текста в редакторе
             self.function_body_for_push = None

@@ -34,7 +34,17 @@ class Site:
             area = request.form.get("area_click")
             delete_ser_button = request.form.get("delete")
             edit = request.form.get("edit")
-            self.commands.post_query(text, function_name, function_body, btn, area, delete_ser_button, edit)
+            action = request.form.get("action")
+            self.commands.post_query(
+                text, 
+                function_name, 
+                function_body, 
+                btn, 
+                area, 
+                delete_ser_button, 
+                edit, 
+                action
+            )
             return redirect(url_for("index"))
         
         return render_template(
