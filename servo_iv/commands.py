@@ -1,5 +1,4 @@
 import pickle
-from .robot_object import site, robot
 import csv
 import time
 
