@@ -405,15 +405,29 @@ if(textarea){
             }
         }
     });
-    setTimeout(() => {
-        if (window.imageMapResize)
+    
+    function resizeMap(){
+        if(window.imageMapResize){
             imageMapResize();
-    }, 0);
+        }
+    }
 
-    window.addEventListener("resize", () => {
-        if (window.imageMapResize)
-            imageMapResize();
+
+    window.addEventListener("load", () => {
+
+        scrollDown();
+
+        const input = document.getElementById("chatInput");
+
+        if(input)
+            input.focus();
+
+        setTimeout(resizeMap, 300);
+
     });
+
+
+    window.addEventListener("resize", resizeMap);
 
     editor.on("inputRead",function(cm){
 
