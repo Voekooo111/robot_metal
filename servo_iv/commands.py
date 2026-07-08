@@ -33,6 +33,7 @@ class Commands:
         self.chose_servo = None
         self._flag_calibration = False
         self._flag_create = False
+        self._flag_edit = False
         self._servo_define = None
         self.function_name_for_push = None
         self.function_body_for_push = None
@@ -105,6 +106,7 @@ class Commands:
                 self.site.messages.append("Ошибка. Функция не найдена.")
         
         elif edit:
+            self._flag_edit = True
             self._flag_create = True
             self.function_name_for_push = edit
             self.function_body_for_push = "\n".join(" ".join(u_c) for u_c in self.user_commands[edit])
@@ -230,7 +232,11 @@ class Commands:
     def create_function(self, name, com):
         com = [c.split() for c in com.splitlines()]
         self.user_commands[name] = com
-        self.site.messages.append(f"Функция {name} создана.")
+        if self._flag_create:
+            self.site.messages.append(f"Функция {name} изменена.")
+            self._flag_create = False
+        else:
+            self.site.messages.append(f"Функция {name} создана.")
         with open('user_commands.pkl', mode='wb') as file:
                 pickle.dump(self.user_commands, file)
         self._flag_create = False
