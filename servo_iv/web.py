@@ -33,7 +33,8 @@ class Site:
             btn = request.form.get("button_click")
             area = request.form.get("area_click")
             delete_ser_button = request.form.get("delete")
-            self.commands.post_query(text, function_name, function_body, btn, area, delete_ser_button)
+            edit = request.form.get("edit")
+            self.commands.post_query(text, function_name, function_body, btn, area, delete_ser_button, edit)
             return redirect(url_for("index"))
         
         return render_template(
@@ -45,6 +46,8 @@ class Site:
             flag_create = self.commands._flag_create,
             robot_words = list(self.commands.default_commands),
             robot_parts = list(self.robot.bodypart) + list(self.robot.body),
+            function_name = self.commands.function_name_for_push,
+            function_body = self.commands.function_body_for_push,
         )
 
     def run(self):

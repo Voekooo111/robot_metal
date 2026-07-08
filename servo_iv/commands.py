@@ -34,6 +34,8 @@ class Commands:
         self._flag_calibration = False
         self._flag_create = False
         self._servo_define = None
+        self.function_name_for_push = None
+        self.function_body_for_push = None
 
         try:
             with open('user_commands.pkl', mode='rb') as file:
@@ -58,7 +60,7 @@ class Commands:
             else:
                 self.define()
 
-    def post_query(self, text, function_name, function_body, btn, area, delete_ser_button):
+    def post_query(self, text, function_name, function_body, btn, area, delete_ser_button, edit):
         """Post-запрос"""
         if text in self.default_btn_commands:
             print("self.default_btn_commands")
@@ -79,6 +81,8 @@ class Commands:
         elif function_body != "" and (text == "save" or text == "end"):
             print("сохранение текста в редакторе")
             # сохранение текста в редакторе
+            self.function_body_for_push = None
+            self.function_name_for_push = None
             if function_name == "":
                 function_name = str(self.temp_name)
                 self.temp_name += 1
@@ -99,6 +103,11 @@ class Commands:
                 self.user_commands.pop(delete_ser_button, "Not Found")
             else:
                 self.site.messages.append("Ошибка. Функция не найдена.")
+        
+        elif edit:
+            self._flag_create = True
+            self.function_name_for_push = edit
+            self.function_body_for_push = "\n".join(" ".join(self.user_commands[edit]))
         
         elif btn in self.default_btn_commands:
             print("btn_self.default_btn_commands")

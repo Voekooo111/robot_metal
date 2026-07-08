@@ -25,6 +25,11 @@
         id="deleteField"
         name="delete"
         value="">
+    <input
+        type="hidden"
+        id="editField"
+        name="edit"
+        value="">
 
 <div class="grid">
 
@@ -42,12 +47,13 @@
             type="text"
             name="function_name"
             class="function-name"
+            value="{{ function_name }}"
             placeholder="Впишите название функции">
 
         <textarea
             name="function_body"
             id="functionBody"
-            placeholder="Функция..."></textarea>
+            placeholder="Функция...">{{ function_body }}</textarea>
 
     </div>
 
@@ -172,6 +178,13 @@
 
                 <button
                     type="button"
+                    class="edit-btn"
+                    onclick="editUserButton('{{ btn }}')">
+                    ✎
+                </button>
+
+                <button
+                    type="button"
                     class="delete-btn"
                     onclick="deleteUserButton('{{ btn }}')">
                     ✕
@@ -214,6 +227,14 @@ function deleteUserButton(buttonName){
 
     document.getElementById("deleteField").value = buttonName;
     document.getElementById("mainForm").submit();
+}
+
+function editUserButton(name){
+
+    document.getElementById("editField").value = name;
+
+    document.getElementById("mainForm").submit();
+
 }
 
 const robotWords = {{ robot_words|tojson }};
