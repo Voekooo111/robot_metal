@@ -90,7 +90,7 @@ class Commands:
                 self.temp_name += 1
             self.create_function(function_name, function_body)
 
-        elif text == "save" or (btn == "create" and self._flag_create):
+        elif text == "save" or action == "save" or (btn == "create" and self._flag_create):
             print("выход без создавания функции")
             # выход без создавания функции
             self._flag_create = False
