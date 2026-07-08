@@ -242,9 +242,9 @@ class Commands:
     def create_function(self, name, com):
         com = [c.split() for c in com.splitlines()]
         self.user_commands[name] = com
-        if self._flag_create:
+        if self._flag_edit:
             self.site.messages.append(f"Функция {name} изменена.")
-            self._flag_create = False
+            self._flag_edit = False
         else:
             self.site.messages.append(f"Функция {name} создана.")
         with open('user_commands.pkl', mode='wb') as file:
