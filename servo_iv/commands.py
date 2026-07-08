@@ -83,7 +83,7 @@ class Commands:
             if text.split()[0] in self.default_commands:
                 print("self.default_commands")
                 self.site.messages.append(f"Запущена команда {text.split()[0]}")
-                self.user_commands[text.split()[0]](text.split())
+                self.default_commands[text.split()[0]](text.split())
                 return None
         if text == "begin":
             print("begin")
