@@ -1,4 +1,4 @@
-from servo_iv import Site, robot
+from servo_iv import site, robot
 import signal
 import sys
 
@@ -9,5 +9,4 @@ def signal_handler(sig, frame):
     sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)
-site = Site()
 site.run()
