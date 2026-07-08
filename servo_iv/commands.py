@@ -41,6 +41,11 @@ class Commands:
         try:
             with open('user_commands.pkl', mode='rb') as file:
                 self.user_commands = pickle.load(file)
+            for u_c in self.user_commands:
+                if str(self.temp_name) in self.user_commands:
+                    self.temp_name += 1
+                else:
+                    break
 
         except Exception:
             pass
