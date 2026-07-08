@@ -51,7 +51,7 @@ class Commands:
         self.temp_user_commands = []
         self.temp_user_commands_name = None
 
-        self.servo_side = [1, 1, 1, -1, -1, -1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1]
+        self.servo_side = [-1, -1, -1, 1, 1, 1, -1, -1, 1, 1, 1, 1, 1, -1, -1, -1]
         self.chose_servo = None
         self._flag_calibration = False
         self._flag_create = False
