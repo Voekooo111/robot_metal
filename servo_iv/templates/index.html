@@ -47,13 +47,13 @@
             type="text"
             name="function_name"
             class="function-name"
-            value="{{ function_name }}"
+            value="{{ function_name | default('', true) }}"
             placeholder="Впишите название функции">
 
         <textarea
             name="function_body"
             id="functionBody"
-            placeholder="Функция...">{{ function_body }}</textarea>
+            placeholder="Функция...">{{ function_body | default('', true)}}</textarea>
 
     </div>
 
