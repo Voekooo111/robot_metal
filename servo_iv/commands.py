@@ -260,9 +260,12 @@ class Commands:
         """
         for command in commands:
             # self.site.messages.append(command)
-            if not self.execute(command):
-                self.site.messages.append(command)
-                self.site.messages.append("^^^^Ошибка. Команда не найдена^^^^")
+            try:
+                if not self.execute(command):
+                    self.site.messages.append(command)
+                    self.site.messages.append("^^^^Ошибка. Команда не найдена^^^^")
+            except RecursionError as e:
+                self.site.messages.append(e)
             
 
     def execute(self, command: list[str]):
