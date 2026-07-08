@@ -276,6 +276,7 @@ class Commands:
             return True
         elif command[0] in self.user_commands:
             self.multy_execute(self.user_commands[command[0]])
+            return True
         else:
             self.site.messages.append("Ошибка. Команда не найдена.")
             return False
