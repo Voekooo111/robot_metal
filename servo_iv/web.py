@@ -43,7 +43,7 @@ class Site:
             user_buttons = list(self.commands.user_commands),
             flag_calibration = self.commands._flag_calibration,
             flag_create = self.commands._flag_create,
-            robot_words = self.commands.default_commands,
+            robot_words = list(self.commands.default_commands),
             robot_parts = list(self.robot.bodypart) + list(self.robot.body),
         )
 
