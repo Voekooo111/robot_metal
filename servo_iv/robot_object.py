@@ -11,3 +11,4 @@ commands = Commands(robot, site)
 site.bind(robot, commands)
 
 robot.class_start()
+print("Робот готов.")
