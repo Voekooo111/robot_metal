@@ -18,7 +18,7 @@ class Commands:
             "sleep" : self.robot.stop_all, 
             "create" : self.create, 
             "stop" : self.stop, 
-            "clear" : self.messages.clear,
+            "clear" : self.site.messages.clear,
         }
         self.default_commands = {
             "run" : self.run,
@@ -135,7 +135,7 @@ class Commands:
             "Принудительно остановить процесс:",
             "1) stop",
         ]
-        self.messages.extend(commands)
+        self.site.messages.extend(commands)
 
     def define(self):
         """Определить сервопривод как канал."""
