@@ -229,7 +229,6 @@ class Commands:
     
     def create_function(self, name, com):
         com = [c.split() for c in com.splitlines()]
-        self.multy_execute(com)
         self.user_commands[name] = com
         self.site.messages.append(f"Функция {name} создана.")
         with open('user_commands.pkl', mode='wb') as file:
@@ -244,7 +243,7 @@ class Commands:
             commands - команды
         """
         for command in commands:
-            self.site.messages.append(command)
+            # self.site.messages.append(command)
             if not self.execute(command):
                 self.site.messages.append("^^^^Ошибка. Команда не найдена^^^^")
             
