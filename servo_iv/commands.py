@@ -111,7 +111,7 @@ class Commands:
         elif btn in self.default_commands:
             print("btn_self.default_commands")
             self.multy_execute(self.user_commands[btn])
-            
+
         elif area:
             print("area пролет")
             self.site.messages.append(area)
@@ -249,7 +249,7 @@ class Commands:
         if len(command) < 1:
             self.site.messages.append("")
         elif command[0] in self.default_commands:
-            self.default_commands[command]()
+            self.default_commands[command[0]]()
         else:
             self.site.messages.append("Ошибка. Команда не найдена.")
             return False
