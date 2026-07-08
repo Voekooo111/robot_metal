@@ -7,14 +7,16 @@ class Exit(Exception):
     pass
 
 class Commands:
-    def __init__(self):
+    def __init__(self, robot, site):
+        self.robot = robot
+        self.site = site
         self.default_btn_commands = {
             "documentation" : self.documentation, 
             "define" : self.define, 
             "calibration" : self.calibration, 
-            "stand" : robot.stand, 
-            "full" : robot.full, 
-            "sleep" : robot.stop_all, 
+            "stand" : self.robot.stand, 
+            "full" : self.robot.full, 
+            "sleep" : self.robot.stop_all, 
             "create" : self.create, 
             "stop" : self.stop, 
             "clear" : self.messages.clear,
@@ -43,17 +45,17 @@ class Commands:
     
     def area_click(self, area):
         self.chose_servo = area
-        site.messages.append(f"Выбран сервопривод: {area}.")
+        self.site.messages.append(f"Выбран сервопривод: {area}.")
         if self._servo_define is not None:
             # определение сервоприводов
-            if area in robot.body.keys():
-                robot.body[area] = self._servo_define
+            if area in self.robot.body.keys():
+                self.robot.body[area] = self._servo_define
             if self._servo_define == 15:
                 self._servo_define = None
                 self.chose_servo = None
-                site.messages.append("Сервоприводы успешно определены.")
+                self.site.messages.append("Сервоприводы успешно определены.")
                 with open('define.pkl', mode='wb') as file:
-                    pickle.dump(robot.body, file)
+                    pickle.dump(self.robot.body, file)
             else:
                 self.define()
 
@@ -98,13 +100,13 @@ class Commands:
             if delete_ser_button in self.user_commands:
                 self.user_commands.pop(delete_ser_button, "Not Found")
             else:
-                site.messages.append("Ошибка. Функция не найдена.")
+                self.site.messages.append("Ошибка. Функция не найдена.")
         elif area:
-            site.messages.append(area)
+            self.site.messages.append(area)
         elif text:
-            site.messages.append(text)
+            self.site.messages.append(text)
         elif btn:
-            site.messages.append(btn)
+            self.site.messages.append(btn)
 
     
     def documentation(self):
@@ -143,31 +145,31 @@ class Commands:
             self._servo_define = 0
         else:
             self._servo_define += 1
-        robot.servo_run(self._servo_define, 1500)
+        self.robot.servo_run(self._servo_define, 1500)
         time.sleep(0.6)
-        robot.servo_run(self._servo_define, 1300)
+        self.robot.servo_run(self._servo_define, 1300)
         time.sleep(0.6)
-        robot.servo_run(self._servo_define, 1800)
+        self.robot.servo_run(self._servo_define, 1800)
         time.sleep(0.2)
-        robot.servo_stop(self._servo_define)
-        site.messages.append(f"Выберите сервопривод. {self._servo_define}/{robot.count_servo-1}.")
+        self.robot.servo_stop(self._servo_define)
+        self.site.messages.append(f"Выберите сервопривод. {self._servo_define}/{self.robot.count_servo-1}.")
 
     def calibration(self):
         """Калибровка сервоприводов."""
         if not self.chose_servo:
-            site.messages.append("Перед калибровкой выберите сервопривод.")
+            self.site.messages.append("Перед калибровкой выберите сервопривод.")
             return None
         elif self.chose_servo == 'head':
-            site.messages.append("Сервопривод головы не вставлен.")
+            self.site.messages.append("Сервопривод головы не вставлен.")
             return None
         self._flag_calibration = True
         self._servo_define = None
-        site.messages.append(f"Готов к калибровке. Установлено значение - {robot.centers[robot.body[self.chose_servo]]}.")
-        site.messages.append("Введите новое значение.")
+        self.site.messages.append(f"Готов к калибровке. Установлено значение - {self.robot.centers[self.robot.body[self.chose_servo]]}.")
+        self.site.messages.append("Введите новое значение.")
     
     def try_calibration(self, text):
         try:
-            site.messages.append(f"Введено число: {text}.")
+            self.site.messages.append(f"Введено число: {text}.")
             text = int(text)
             if text == -1:
                 self._flag_calibration = False
@@ -175,14 +177,14 @@ class Commands:
                 text.messages.append("Центр сервопривода откалиброван.")
                 raise Exit("Центр сервопривода откалиброван.")
             
-            robot.servo_run(robot.body[self.chose_servo], text)
-            robot.centers[robot.body[self.chose_servo]] = text
+            self.robot.servo_run(self.robot.body[self.chose_servo], text)
+            self.robot.centers[self.robot.body[self.chose_servo]] = text
             with open('calibration.csv', mode='w', newline='') as file:
                 writer = csv.writer(file)
-                writer.writerow(robot.centers)
+                writer.writerow(self.robot.centers)
 
         except (ValueError, TypeError):
-            site.messages.append('Введите целое неотрицательное число.')
+            self.site.messages.append('Введите целое неотрицательное число.')
 
         except Exit:
             pass
@@ -191,20 +193,20 @@ class Commands:
         """Остановка процесса."""
         self._flag_calibration = False
         self._servo_define = None
-        site.messages.append("Принудительная остановка процессов.")
+        self.site.messages.append("Принудительная остановка процессов.")
     
     def create(self):
         """Создание функции."""
-        site.messages.append("")
+        self.site.messages.append("")
         self._flag_calibration = False
-        site.messages.append("begin function")
+        self.site.messages.append("begin function")
         self._flag_create = True
     
     def create_function(self, name, com):
         com = [c.split() for c in com.splitlines()]
         self.multy_execute(com)
         self.user_commands[name] = com
-        site.messages.append(f"Функция {name} создана.")
+        self.site.messages.append(f"Функция {name} создана.")
         with open('user_commands.pkl', mode='wb') as file:
                 pickle.dump(self.user_commands, file)
         self._flag_create = False
@@ -217,9 +219,9 @@ class Commands:
             commands - команды
         """
         for command in commands:
-            site.messages.append(command)
+            self.site.messages.append(command)
             if not self.execute(command):
-                site.messages.append("^^^^Ошибка. Команда не найдена^^^^")
+                self.site.messages.append("^^^^Ошибка. Команда не найдена^^^^")
             
 
     def execute(self, command: list[str]):
@@ -230,11 +232,11 @@ class Commands:
             command - команда
         """ 
         if len(command) < 1:
-            site.messages.append("")
+            self.site.messages.append("")
         elif command[0] in self.default_commands:
             self.default_commands[command]()
         else:
-            site.messages.append("Ошибка. Команда не найдена.")
+            self.site.messages.append("Ошибка. Команда не найдена.")
             return False
     
     def run(self, command):
@@ -242,19 +244,19 @@ class Commands:
         try:
             if len(command) == 3:
                 value = int(command[2])
-                robot.servo_run_name(command[1], value)
-                if robot.flag_success_run:
+                self.robot.servo_run_name(command[1], value)
+                if self.robot.flag_success_run:
                     return True
                 return False
             elif len(command) == 2:
-                robot.servo_stop_name(command[1])
-                if robot.flag_success_stop:
+                self.robot.servo_stop_name(command[1])
+                if self.robot.flag_success_stop:
                     return True
                 return False
             else:
                 raise IndexError("")
         except (ValueError, TypeError, IndexError):
-            site.messages.append("Ошибка входных параметров для run: run <выбранные сервопривод текстом> <значение>")
+            self.site.messages.append("Ошибка входных параметров для run: run <выбранные сервопривод текстом> <значение>")
             return False
     
     def wait(self, command):
@@ -267,6 +269,6 @@ class Commands:
             else:
                 raise IndexError
         except (ValueError, TypeError, IndexError):
-            site.messages.append("Ошибка входных параметров для run: run <выбранные сервопривод текстом> <значение>")
+            self.site.messages.append("Ошибка входных параметров для run: run <выбранные сервопривод текстом> <значение>")
             return False
 

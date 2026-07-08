@@ -1,8 +1,10 @@
 from .robot_pca9685 import Robot_pca
-from .commands import Commands
 from .web import Site
+from .commands import Commands
 
-commands = Commands()
 robot = Robot_pca()
 site = Site()
+
+commands = Commands(robot, site)
+
 robot.class_start()
