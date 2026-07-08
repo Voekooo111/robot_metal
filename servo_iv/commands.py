@@ -80,12 +80,12 @@ class Commands:
             self.multy_execute(self.user_commands[text])
         
         elif len(text) > 1:
-            if text[0] in self.default_commands:
+            if text.split()[0] in self.default_commands:
                 print("self.default_commands")
                 self.site.messages.append(f"Запущена функция {text[0]}")
                 self.multy_execute(self.user_commands[text])
-
-        elif text == "begin":
+                return None
+        if text == "begin":
             print("begin")
             self.create()
         
