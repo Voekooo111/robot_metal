@@ -392,7 +392,7 @@ class Commands:
         elif len(command) > 2 and command[1] == "=":
             return self.assign(command)
         elif command[0] in self.default_btn_commands:
-            self.default_commands[command[0]]()
+            self.default_btn_commands[command[0]]()
             return True
         elif command[0] in self.default_commands:
             self.default_commands[command[0]](command)
