@@ -71,14 +71,18 @@ class Commands:
         """Post-запрос"""
         if text in self.default_btn_commands:
             print("self.default_btn_commands")
+            self.site.messages.append(f"Запущена функция {text}")
             self.default_btn_commands[text]()
 
         elif text in self.user_commands:
             print("self.user_commands")
+            self.site.messages.append(f"Запущена функция {text}")
             self.multy_execute(self.user_commands[text])
         
-        elif text in self.default_commands:
+        elif len(text) > 1:
+            if text[0] in self.default_commands:
             print("self.default_commands")
+            self.site.messages.append(f"Запущена функция {text[0]}")
             self.multy_execute(self.user_commands[text])
 
         elif text == "begin":
@@ -121,19 +125,19 @@ class Commands:
         elif area:
             print("area пролет")
             self.site.messages.append(area)
+
         elif text:
             print("text пролет")
             self.site.messages.append(text)
+
         elif btn in self.default_btn_commands:
             print("btn_self.default_btn_commands")
+            self.site.messages.append(f"Запущена функция {btn}")
             self.default_btn_commands[btn]()
 
         elif btn in self.user_commands:
             print("btn_self.user_commands")
-            self.multy_execute(self.user_commands[btn])
-        
-        elif btn in self.default_commands:
-            print("btn_self.default_commands")
+            self.site.messages.append(f"Запущена функция {btn}")
             self.multy_execute(self.user_commands[btn])
 
         elif btn:
