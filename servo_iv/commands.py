@@ -61,27 +61,34 @@ class Commands:
     def post_query(self, text, function_name, function_body, btn, area, delete_ser_button):
         """Post-запрос"""
         if text in self.default_btn_commands:
+            print("self.default_btn_commands")
             self.default_btn_commands[text]()
 
         elif text in self.user_commands:
+            print("self.user_commands")
             self.multy_execute(self.user_commands[text])
         
         elif text in self.default_commands:
+            print("self.default_commands")
             self.multy_execute(self.user_commands[text])
 
         elif btn in self.default_btn_commands:
+            print("self.default_btn_commands")
             self.default_btn_commands[btn]()
 
         elif btn in self.user_commands:
+            print("self.user_commands")
             self.multy_execute(self.user_commands[btn])
         
         elif btn in self.default_commands:
+            print("self.default_commands")
             self.multy_execute(self.user_commands[btn])
 
         elif text == "begin":
             self.create()
         
         elif function_body != "" and (text == "save" or text == "end"):
+            print("сохранение текста в редакторе")
             # сохранение текста в редакторе
             if function_name == "":
                 function_name = str(self.temp_name)
@@ -89,6 +96,7 @@ class Commands:
             self.create_function(function_name, function_body)
 
         elif text == "save" or (btn == "create" and self._flag_create):
+            print("выход без создавания функции")
             # выход без создавания функции
             self._flag_create = False
 
