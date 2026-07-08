@@ -57,6 +57,7 @@ class Commands:
         self._flag_create = False
         self._flag_edit = False
         self._servo_define = None
+        self.stop_execution = False
         self.function_name_for_push = None
         self.function_body_for_push = None
         self.variables = {}
@@ -327,6 +328,7 @@ class Commands:
         """Остановка процесса."""
         self._flag_calibration = False
         self._servo_define = None
+        self.stop_execution = True
         self.site.messages.append("Принудительная остановка процессов.")
     
     def create(self):
@@ -355,10 +357,13 @@ class Commands:
         Args:
             commands - команды
         """
+        self.stop_execution = False
         i = 0
 
         while i < len(commands):
             try:
+                if self.stop_execution:
+                    return None
                 command = commands[i]
                 if command[0] == "while":
                     i = self.while_func(command, commands, i)
@@ -445,6 +450,8 @@ class Commands:
             body.append(commands[i])
             i += 1
         while self.eval_expr(condition):
+            if self.stop_execution:
+                return i
             self.multy_execute(body)
         return i
     

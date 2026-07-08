@@ -54,7 +54,7 @@ class Site:
             user_buttons = list(self.commands.user_commands),
             flag_calibration = self.commands._flag_calibration,
             flag_create = self.commands._flag_create,
-            robot_words = list(self.commands.default_commands),
+            robot_words = list(self.commands.default_commands + "end",
             robot_parts = list(self.robot.bodypart) + list(self.robot.body),
             function_name = self.commands.function_name_for_push,
             function_body = self.commands.function_body_for_push,
