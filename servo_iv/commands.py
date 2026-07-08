@@ -1,6 +1,25 @@
 import pickle
 import csv
 import time
+import ast
+import operator
+
+OPS = {
+    ast.Add: operator.add,
+    ast.Sub: operator.sub,
+    ast.Mult: operator.mul,
+    ast.Div: operator.truediv,
+    ast.FloorDiv: operator.floordiv,
+    ast.Mod: operator.mod,
+    ast.Pow: operator.pow,
+
+    ast.Lt: operator.lt,
+    ast.LtE: operator.le,
+    ast.Gt: operator.gt,
+    ast.GtE: operator.ge,
+    ast.Eq: operator.eq,
+    ast.NotEq: operator.ne,
+}
 
 class Exit(Exception):
     pass
@@ -23,6 +42,9 @@ class Commands:
         self.default_commands = {
             "run" : self.run,
             "wait" : self.wait,
+            "while": self.while_func,
+            "if": self.if_func,
+            "print": self.print_func,
         }
         self.user_commands = dict()
         self.temp_name = 0
@@ -37,6 +59,7 @@ class Commands:
         self._servo_define = None
         self.function_name_for_push = None
         self.function_body_for_push = None
+        self.variables = {}
 
         try:
             with open('user_commands.pkl', mode='rb') as file:
@@ -153,8 +176,9 @@ class Commands:
             "Определить сервопривод как канал:",
             "1) define",
             "2) Выбрать сервопривод",
-            "Повторять шаг 2, пока не определиться каждый сервопривод",
+            "Повторять шаг 2, пока не определится каждый сервопривод",
             "",
+
             "Калибровка:",
             "1) full",
             "2) Выбрать сервопривод",
@@ -164,14 +188,87 @@ class Commands:
             "5) Для завершения ввести -1",
             "6) sleep",
             "",
+
             "Включить все сервоприводы:",
             "1) full",
             "",
-            "Отключить все сервоприводы",
+
+            "Отключить все сервоприводы:",
             "1) sleep",
             "",
+
             "Принудительно остановить процесс:",
             "1) stop",
+            "",
+
+            "-----------------------------------------",
+            "Переменные:",
+            "a = 10",
+            "b = 15.5",
+            'text = "Hello"',
+            "",
+
+            "Арифметические операции:",
+            "+  -  *  /  //  %  **",
+            "Пример:",
+            "speed = speed + 100",
+            "a = (x + y) * 2",
+            "",
+
+            "Сравнения:",
+            "<   <=   >   >=   ==   !=",
+            "",
+
+            "Логические операции:",
+            "and   or   not",
+            "",
+
+            "Цикл while:",
+            "while speed < 2000",
+            "    run left 1500",
+            "    speed = speed + 100",
+            "end",
+            "",
+
+            "Условие if:",
+            "if speed > 1500",
+            '    print "Fast"',
+            "else",
+            '    print "Slow"',
+            "end",
+            "",
+
+            "Вывод:",
+            "print speed",
+            "print speed + 100",
+            'print "Hello"',
+            "print robot.body",
+            "print robot.centers",
+            "",
+
+            "Встроенные функции:",
+            "abs(x)",
+            "min(a, b)",
+            "max(a, b)",
+            "len(x)",
+            "round(x)",
+            "",
+
+            "Команда run:",
+            "run <сервопривод> <значение>",
+            "Пример:",
+            "run left_front 1500",
+            "",
+
+            "Команда wait:",
+            "wait <секунды>",
+            "Пример:",
+            "wait 0.5",
+            "",
+
+            "Пользовательские функции:",
+            "ИмяФункции",
+            "",
         ]
         self.site.messages.extend(commands)
 
@@ -258,16 +355,25 @@ class Commands:
         Args:
             commands - команды
         """
-        for command in commands:
-            # self.site.messages.append(command)
+        i = 0
+
+        while i < len(commands):
             try:
-                if not self.execute(command):
-                    self.site.messages.append(command)
-                    self.site.messages.append("^^^^Ошибка. Команда не найдена^^^^")
+                command = commands[i]
+                if command[0] == "while":
+                    i = self.while_func(command, commands, i)
+                elif command[0] == "if":
+                    i = self.if_func(command, commands, i)
+                else:
+                    if not self.execute(command):
+                        self.site.messages.append(command)
+                        self.site.messages.append("^^^^Ошибка. Команда не найдена^^^^")
             except RecursionError as e:
                 self.site.messages.append(e)
             
-
+            i += 1
+            
+            
     def execute(self, command: list[str]):
         """
         Выполняет комманды.
@@ -278,6 +384,8 @@ class Commands:
         if len(command) < 1:
             self.site.messages.append("")
             return True
+        elif len(command) > 2 and command[1] == "=":
+            return self.assign(command)
         elif command[0] in self.default_commands:
             self.default_commands[command[0]](command)
             return True
@@ -321,3 +429,149 @@ class Commands:
             self.site.messages.append("Ошибка входных параметров для run: run <выбранные сервопривод текстом> <значение>")
             return False
 
+    def while_func(self, command, commands, index):
+        condition = " ".join(command[1:])
+        body = []
+        depth = 1
+        i = index + 1
+        while i < len(commands):
+            cmd = commands[i][0]
+            if cmd in ("while", "if"):
+                depth += 1
+            elif cmd == "end":
+                depth -= 1
+                if depth == 0:
+                    break
+            body.append(commands[i])
+            i += 1
+        while self.eval_expr(condition):
+            self.multy_execute(body)
+        return i
+    
+    def if_func(self, command, commands, index):
+        condition = " ".join(command[1:])
+        true_body = []
+        false_body = []
+        body = true_body
+        depth = 1
+        i = index + 1
+        while i < len(commands):
+            cmd = commands[i][0]
+            if cmd in ("while", "if"):
+                depth += 1
+            elif cmd == "end":
+                depth -= 1
+                if depth == 0:
+                    break
+            elif cmd == "else" and depth == 1:
+                body = false_body
+                i += 1
+                continue
+            body.append(commands[i])
+            i += 1
+        if self.eval_expr(condition):
+            self.multy_execute(true_body)
+        else:
+            self.multy_execute(false_body)
+        return i
+    
+
+    def eval_expr(self, expr: str):
+        tree = ast.parse(expr, mode="eval")
+        return self._eval(tree.body)
+
+
+    def _eval(self, node):
+        if isinstance(node, ast.Constant):
+            return node.value
+        
+        elif isinstance(node, ast.Attribute):
+            obj = self._eval(node.value)
+            return getattr(obj, node.attr)
+    
+        elif isinstance(node, ast.Subscript):
+            obj = self._eval(node.value)
+            key = self._eval(node.slice)
+            return obj[key]
+
+        elif isinstance(node, ast.BoolOp):
+            if isinstance(node.op, ast.And):
+                return all(self._eval(v) for v in node.values)
+            elif isinstance(node.op, ast.Or):
+                return any(self._eval(v) for v in node.values)
+        
+        elif isinstance(node, ast.UnaryOp):
+            if isinstance(node.op, ast.Not):
+                return not self._eval(node.operand)
+            elif isinstance(node.op, ast.USub):
+                return -self._eval(node.operand)
+        
+        elif isinstance(node, ast.Call):
+            funcs = {
+                "abs": abs,
+                "min": min,
+                "max": max,
+                "len": len,
+                "round": round,
+            }
+
+            func = funcs[node.func.id]
+
+            args = [self._eval(arg) for arg in node.args]
+
+            return func(*args)
+
+        elif isinstance(node, ast.Name):
+            if node.id == "robot":
+                return self.robot
+            if node.id == "site":
+                return self.site
+            if node.id in self.variables:
+                return self.variables[node.id]
+            raise NameError(f"Переменная '{node.id}' не существует")
+
+        elif isinstance(node, ast.BinOp):
+            return OPS[type(node.op)](
+                self._eval(node.left),
+                self._eval(node.right)
+            )
+
+        elif isinstance(node, ast.Compare):
+            left = self._eval(node.left)
+
+            for op, comp in zip(node.ops, node.comparators):
+                right = self._eval(comp)
+
+                if not OPS[type(op)](left, right):
+                    return False
+
+                left = right
+
+            return True
+
+        else:
+            raise Exception(f"Недопустимое выражение: {type(node)}")  
+    
+    def print_func(self, command):
+        expr = " ".join(command[1:])
+
+        try:
+            value = self.eval_expr(expr)
+        except Exception:
+            value = expr
+
+        self.site.messages.append(str(value))
+
+
+    def assign(self, command):
+        try:
+            if command[1] != "=":
+                raise ValueError
+            name = command[0]
+            expr = " ".join(command[2:])
+            self.variables[name] = self.eval_expr(expr)
+            return True
+
+        except Exception as e:
+            self.site.messages.append(f"Ошибка присваивания: {e}")
+            return False
