@@ -257,6 +257,7 @@ class Commands:
         for command in commands:
             # self.site.messages.append(command)
             if not self.execute(command):
+                self.site.messages.append(command)
                 self.site.messages.append("^^^^Ошибка. Команда не найдена^^^^")
             
 
@@ -273,6 +274,8 @@ class Commands:
         elif command[0] in self.default_commands:
             self.default_commands[command[0]](command)
             return True
+        elif command[0] in self.user_commands:
+            self.multy_execute(self.user_commands[command[0]])
         else:
             self.site.messages.append("Ошибка. Команда не найдена.")
             return False
