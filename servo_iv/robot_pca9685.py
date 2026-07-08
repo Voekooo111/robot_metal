@@ -50,7 +50,7 @@ class Robot_pca(Pca):
         self.flag_success_run = False
         self.flag_success_stop = False
         if self.count_servo == 16:
-            self.servo_side = [1, 1, -1, -1, -1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1]
+            self.servo_side = [-1, -1, 1, 1, 1, -1, -1, -1, 1, -1, 1, 1, 1, -1, 1, -1]
         else:
             self.servo_side = [1] * self.count_servo
     
