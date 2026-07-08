@@ -244,16 +244,6 @@ function editUserButton(name){
 
 function addArea(area){
 
-    const input = document.getElementById("chatInput");
-
-    if(input){
-
-        if(input.value.length)
-            input.value += " ";
-
-        input.value += area;
-    }
-
     if(editor){
 
         const doc = editor.getDoc();
@@ -271,6 +261,18 @@ function addArea(area){
         );
 
         editor.focus();
+        return;
+    }
+
+    const input = document.getElementById("chatInput");
+
+    if(input){
+
+        if(input.value.length)
+            input.value += " ";
+
+        input.value += area;
+        input.focus();
     }
 }
 
@@ -402,6 +404,15 @@ if(textarea){
                 action.value = "";
             }
         }
+    });
+    setTimeout(() => {
+        if (window.imageMapResize)
+            imageMapResize();
+    }, 0);
+
+    window.addEventListener("resize", () => {
+        if (window.imageMapResize)
+            imageMapResize();
     });
 
     editor.on("inputRead",function(cm){
