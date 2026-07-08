@@ -118,7 +118,7 @@ class Commands:
             # сохранение текста в редакторе
             self.function_body_for_push = None
             self.function_name_for_push = None
-            if function_name == "":
+            if function_name == "" or function_name in list(self.default_btn_commands) + list(self.default_commands) :
                 function_name = str(self.temp_name)
                 self.temp_name += 1
             self.create_function(function_name, function_body)
