@@ -98,7 +98,7 @@ class Commands:
         elif text in self.user_commands:
             print("self.user_commands")
             self.site.messages.append(f"Запущена функция {text}")
-            self.multy_execute(self.user_commands[text])
+            self.multi_execute(self.user_commands[text])
         
         elif len(text) > 1:
             if text.split()[0] in self.default_commands:
@@ -159,7 +159,7 @@ class Commands:
         elif btn in self.user_commands:
             print("btn_self.user_commands")
             self.site.messages.append(f"Запущена функция {btn}")
-            self.multy_execute(self.user_commands[btn])
+            self.multi_execute(self.user_commands[btn])
 
         elif btn:
             print("btn пролет")
@@ -336,7 +336,7 @@ class Commands:
         self._flag_create = True
     
     def create_function(self, name, com):
-        com = [c.split() for c in com.splitlines()]
+        com = [c.strip().split() for c in com.splitlines()]
         self.user_commands[name] = com
         if self._flag_edit:
             self.site.messages.append(f"Функция {name} изменена.")
@@ -347,7 +347,7 @@ class Commands:
                 pickle.dump(self.user_commands, file)
         self._flag_create = False
 
-    def multy_execute(self, commands: list[list[str]]):
+    def multi_execute(self, commands: list[list[str]]):
         """
         Выполняет несколько комманд.
         
@@ -358,18 +358,27 @@ class Commands:
         i = 0
 
         while i < len(commands):
-            try:
-                self.multy_execute_in(commands, i)
-            except lgpio.error:
-                time.sleep(0.1)
-                self.multy_execute_in(commands, i)
-            except Exception as e:
-                self.site.messages.append(Exception)
-                self.site.messages.append(e)
-            
-            i += 1
+            lost_i2c = False
+            while True:
+                if self.stop_execution:
+                    return
+                try:
+                    i = self.multi_execute_in(commands, i)
+                    if lost_i2c:
+                        self.site.add_message("Соединение I2C восстановлено.")
+                    break
 
-    def multy_execute_in(self, commands, i):
+                except lgpio.error:
+                    if not lost_i2c:
+                        self.site.add_message("Потеряно соединение I2C.")
+                        lost_i2c = True
+                    time.sleep(0.1)
+                except Exception as e:
+                    self.site.add_message(e)
+                finally:
+                    self.running = False
+
+    def multi_execute_in(self, commands, i):
         if self.stop_execution:
             return None
         command = commands[i]
@@ -382,6 +391,7 @@ class Commands:
                 if not self.execute(command):
                     self.site.messages.append(command)
                     self.site.messages.append("^^^^Ошибка. Команда не найдена^^^^")
+        return i + 1
             
     def execute(self, command: list[str]):
         """
@@ -402,7 +412,7 @@ class Commands:
             self.default_commands[command[0]](command)
             return True
         elif command[0] in self.user_commands:
-            self.multy_execute(self.user_commands[command[0]])
+            self.multi_execute(self.user_commands[command[0]])
             return True
         else:
             self.site.messages.append("Ошибка. Команда не найдена.")
@@ -465,7 +475,7 @@ class Commands:
         while self.eval_expr(condition):
             if self.stop_execution:
                 return i
-            self.multy_execute(body)
+            self.multi_execute(body)
         return i
     
     def if_func(self, command, commands, index):
@@ -490,9 +500,9 @@ class Commands:
             body.append(commands[i])
             i += 1
         if self.eval_expr(condition):
-            self.multy_execute(true_body)
+            self.multi_execute(true_body)
         else:
-            self.multy_execute(false_body)
+            self.multi_execute(false_body)
         return i
     
 
