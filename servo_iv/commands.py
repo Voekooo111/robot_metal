@@ -442,7 +442,7 @@ class Commands:
         """Задержка в секундах"""
         try:
             expr = " ".join(command[1:])
-            value = int(self.eval_expr(expr))
+            value = float(self.eval_expr(expr))
             end = time.time() + value
             while time.time() < end:
                 if self.stop_execution:
