@@ -360,8 +360,8 @@ class Commands:
             try:
                 if self.stop_execution:
                     return None
-                if len(commands) > 0:
-                    command = commands[i]
+                command = commands[i]
+                if len(command) > 0:
                     if command[0] == "while":
                         i = self.while_func(command, commands, i)
                     elif command[0] == "if":
