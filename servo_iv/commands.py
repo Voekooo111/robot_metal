@@ -392,7 +392,7 @@ class Commands:
                         lost_i2c = True
                     time.sleep(0.1)
                 except Exception as e:
-                    self.site.add_message(e)
+                    self.site.add_message(str(e))
                 finally:
                     self.running = False
             
@@ -408,7 +408,7 @@ class Commands:
                 i = self.if_func(command, commands, i)
             else:
                 if not self.execute(command):
-                    self.site.add_message(command)
+                    self.site.add_message(" ".join(command))
                     self.site.add_message("^^^^Ошибка. Команда не найдена^^^^")
         return i + 1
             
@@ -674,5 +674,5 @@ class Commands:
             return True
 
         except Exception as e:
-            self.site.add_message(f"Ошибка присваивания: {e}")
+            self.site.add_message(f"Ошибка присваивания: {str(e)}")
             return False
