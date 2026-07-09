@@ -373,10 +373,6 @@ class Commands:
                         self.site.messages.append("Потеряно соединение I2C.")
                         lost_i2c = True
                     time.sleep(0.1)
-                except Exception as e:
-                   self.site.messages.append(e)
-                finally:
-                    self.running = False
 
     def multi_execute_in(self, commands, i):
         if self.stop_execution:
