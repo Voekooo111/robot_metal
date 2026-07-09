@@ -403,7 +403,9 @@ class Commands:
         if len(command) < 1:
             self.site.messages.append("")
             return True
-        elif len(command) > 2 and command[1] == "=":
+        elif len(command) > 2 and command[1] in (
+            "=", "+=", "-=", "*=", "/=", "//=", "%=", "**="
+        ):
             return self.assign(command)
         elif command[0] in self.default_btn_commands:
             self.default_btn_commands[command[0]]()
@@ -421,22 +423,17 @@ class Commands:
     def run(self, command):
         """Запуск сервопривода"""
         try:
-            if len(command) == 3:
-                if command[2] in self.variables:
-                    value = self.variables[command[2]]
-                else:
-                    value = int(command[2])
-                self.robot.servo_run_name(command[1], value)
-                if self.robot.flag_success_run:
-                    return True
-                return False
-            elif len(command) == 2:
+            if len(command) == 2:
                 self.robot.servo_stop_name(command[1])
                 if self.robot.flag_success_stop:
                     return True
                 return False
-            else:
-                raise IndexError("")
+            expr = " ".join(command[2:])
+            value = int(self.eval_expr(expr))
+            self.robot.servo_run_name(command[1], value)
+            if self.robot.flag_success_run:
+                return True
+            return False
         except (ValueError, TypeError, IndexError):
             self.site.messages.append("Ошибка входных параметров для run: run <выбранные сервопривод текстом> <значение>")
             return False
@@ -444,15 +441,10 @@ class Commands:
     def wait(self, command):
         """Задержка в секундах"""
         try:
-            if len(command) == 2:
-                if command[1] in self.variables:
-                    value = self.variables[command[1]]
-                else:
-                    value = float(command[1])
-                time.sleep(value) # Заменить на datetime
-                return True
-            else:
-                raise IndexError
+            expr = " ".join(command[2:])
+            value = int(self.eval_expr(expr))
+            time.sleep(value) # Заменить на datetime
+            return True
         except (ValueError, TypeError, IndexError):
             self.site.messages.append("Ошибка входных параметров для run: run <выбранные сервопривод текстом> <значение>")
             return False
@@ -595,11 +587,37 @@ class Commands:
 
     def assign(self, command):
         try:
-            if command[1] != "=":
-                raise ValueError
             name = command[0]
+
+            if not name.isidentifier():
+                raise ValueError("Некорректное имя переменной")
+
+            op = command[1]
             expr = " ".join(command[2:])
-            self.variables[name] = self.eval_expr(expr)
+            value = self.eval_expr(expr)
+
+            if op == "=":
+                self.variables[name] = value
+
+            else:
+                if name not in self.variables:
+                    raise NameError(f"Переменная '{name}' не существует")
+
+                if op == "+=":
+                    self.variables[name] += value
+                elif op == "-=":
+                    self.variables[name] -= value
+                elif op == "*=":
+                    self.variables[name] *= value
+                elif op == "/=":
+                    self.variables[name] /= value
+                elif op == "//=":
+                    self.variables[name] //= value
+                elif op == "%=":
+                    self.variables[name] %= value
+                elif op == "**=":
+                    self.variables[name] **= value
+
             return True
 
         except Exception as e:
