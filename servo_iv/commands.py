@@ -306,7 +306,7 @@ class Commands:
             if text == -1:
                 self._flag_calibration = False
                 self.chose_servo = None
-                text.messages.append("Центр сервопривода откалиброван.")
+                self.site.messages.append("Центр сервопривода откалиброван.")
                 raise Exit("Центр сервопривода откалиброван.")
             
             self.robot.servo_run(self.robot.body[self.chose_servo], text)
@@ -396,7 +396,9 @@ class Commands:
         Args:
             command - команда
         """ 
-        if len(command) < 1:
+        if self.stop_execution:
+            return False
+        if not command:
             self.site.messages.append("")
             return True
         elif len(command) > 2 and command[1] in (
@@ -439,10 +441,16 @@ class Commands:
         try:
             expr = " ".join(command[2:])
             value = int(self.eval_expr(expr))
-            time.sleep(value) # Заменить на datetime
+            end = time.time() + value
+            while time.time() < end:
+                if self.stop_execution:
+                    return False
+                time.sleep(0.02)
+
+            return True
             return True
         except (ValueError, TypeError, IndexError):
-            self.site.messages.append("Ошибка входных параметров для run: run <выбранные сервопривод текстом> <значение>")
+            self.site.messages.append("Ошибка входных параметров для wait: wait <секунды>")
             return False
 
     def while_func(self, command, commands, index):
@@ -451,6 +459,10 @@ class Commands:
         depth = 1
         i = index + 1
         while i < len(commands):
+            if not commands[i]:
+                i += 1
+                continue
+
             cmd = commands[i][0]
             if cmd in ("while", "if"):
                 depth += 1
@@ -460,6 +472,9 @@ class Commands:
                     break
             body.append(commands[i])
             i += 1
+        if depth != 0:
+            self.site.messages.append("Ошибка. Не найден end.")
+            return len(commands)
         while self.eval_expr(condition):
             if self.stop_execution:
                 return i
@@ -487,6 +502,9 @@ class Commands:
                 continue
             body.append(commands[i])
             i += 1
+        if depth != 0:
+            self.site.messages.append("Ошибка. Не найден end.")
+            return len(commands)
         if self.eval_expr(condition):
             self.multi_execute(true_body)
         else:
@@ -495,8 +513,11 @@ class Commands:
     
 
     def eval_expr(self, expr: str):
-        tree = ast.parse(expr, mode="eval")
-        return self._eval(tree.body)
+        try:
+            tree = ast.parse(expr, mode="eval")
+            return self._eval(tree.body)
+        except SyntaxError as e:
+            self.site.messages.append(f"Синтаксическая ошибка в выражении: {expr} – {e}")
 
 
     def _eval(self, node):
@@ -533,7 +554,10 @@ class Commands:
                 "round": round,
             }
 
-            func = funcs[node.func.id]
+            func = funcs.get(node.func.id)
+
+            if func is None:
+                raise NameError(f"Функция '{node.func.id}' не существует")
 
             args = [self._eval(arg) for arg in node.args]
 
@@ -575,6 +599,9 @@ class Commands:
 
         try:
             value = self.eval_expr(expr)
+        except NameError as e:
+            self.site.messages.append(str(e))
+            return
         except Exception:
             value = expr
 
