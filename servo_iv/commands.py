@@ -404,7 +404,10 @@ class Commands:
         """Запуск сервопривода"""
         try:
             if len(command) == 3:
-                value = int(command[2])
+                if command[2] in self.variables:
+                    value = self.variables[command[2]]
+                else:
+                    value = int(command[2])
                 self.robot.servo_run_name(command[1], value)
                 if self.robot.flag_success_run:
                     return True
