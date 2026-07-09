@@ -4,6 +4,7 @@ import time
 import ast
 import operator
 import lgpio
+import threading
 
 OPS = {
     ast.Add: operator.add,
@@ -57,6 +58,8 @@ class Commands:
         self.stop_execution = False
         self.function_name_for_push = None
         self.function_body_for_push = None
+        self.worker = None
+        self.running = False
         self.variables = {}
 
         try:
@@ -71,9 +74,24 @@ class Commands:
         except Exception:
             pass
     
+    def start_execute(self, commands):
+        if self.running:
+            self.site.add_message("Программа уже выполняется.")
+            return
+
+        self.running = True
+        self.stop_execution = False
+
+        self.worker = threading.Thread(
+            target=self.multi_execute,
+            args=(commands,),
+            daemon=True
+        )
+        self.worker.start()
+
     def area_click(self, area):
         self.chose_servo = area
-        self.site.messages.append(f"Выбран сервопривод: {area}.")
+        self.site.add_message(f"Выбран сервопривод: {area}.")
         if self._servo_define is not None:
             # определение сервоприводов
             if area in self.robot.body.keys():
@@ -81,7 +99,7 @@ class Commands:
             if self._servo_define == 15:
                 self._servo_define = None
                 self.chose_servo = None
-                self.site.messages.append("Сервоприводы успешно определены.")
+                self.site.add_message("Сервоприводы успешно определены.")
                 with open('define.pkl', mode='wb') as file:
                     pickle.dump(self.robot.body, file)
             else:
@@ -92,18 +110,18 @@ class Commands:
         """Post-запрос"""
         if text in self.default_btn_commands:
             print("self.default_btn_commands")
-            self.site.messages.append(f"Запущена функция {text}")
+            self.site.add_message(f"Запущена функция {text}")
             self.default_btn_commands[text]()
 
         elif text in self.user_commands:
             print("self.user_commands")
-            self.site.messages.append(f"Запущена функция {text}")
-            self.multy_execute(self.user_commands[text])
+            self.site.add_message(f"Запущена функция {text}")
+            self.start_execute(self.user_commands[text])
         
         elif len(text) > 1:
             if text.split()[0] in self.default_commands:
                 print("self.default_commands")
-                self.site.messages.append(f"Запущена команда {text.split()[0]}")
+                self.site.add_message(f"Запущена команда {text.split()[0]}")
                 self.default_commands[text.split()[0]](text.split())
                 return None
         if text == "begin":
@@ -134,7 +152,7 @@ class Commands:
             if delete_ser_button in self.user_commands:
                 self.user_commands.pop(delete_ser_button, "Not Found")
             else:
-                self.site.messages.append("Ошибка. Функция не найдена.")
+                self.site.add_message("Ошибка. Функция не найдена.")
         
         elif edit:
             self._flag_edit = True
@@ -145,25 +163,25 @@ class Commands:
 
         elif area:
             print("area пролет")
-            self.site.messages.append(area)
+            self.site.add_message(area)
 
         elif text:
             print("text пролет")
-            self.site.messages.append(text)
+            self.site.add_message(text)
 
         elif btn in self.default_btn_commands:
             print("btn_self.default_btn_commands")
-            self.site.messages.append(f"Запущена функция {btn}")
+            self.site.add_message(f"Запущена функция {btn}")
             self.default_btn_commands[btn]()
 
         elif btn in self.user_commands:
             print("btn_self.user_commands")
-            self.site.messages.append(f"Запущена функция {btn}")
-            self.multy_execute(self.user_commands[btn])
+            self.site.add_message(f"Запущена функция {btn}")
+            self.start_execute(self.user_commands[btn])
 
         elif btn:
             print("btn пролет")
-            self.site.messages.append(btn)
+            self.site.add_message(btn)
         print("-")
 
     
@@ -284,29 +302,29 @@ class Commands:
         self.robot.servo_run(self._servo_define, 1800)
         time.sleep(0.2)
         self.robot.servo_stop(self._servo_define)
-        self.site.messages.append(f"Выберите сервопривод. {self._servo_define}/{self.robot.count_servo-1}.")
+        self.site.add_message(f"Выберите сервопривод. {self._servo_define}/{self.robot.count_servo-1}.")
 
     def calibration(self):
         """Калибровка сервоприводов."""
         if not self.chose_servo:
-            self.site.messages.append("Перед калибровкой выберите сервопривод.")
+            self.site.add_message("Перед калибровкой выберите сервопривод.")
             return None
         elif self.chose_servo == 'head':
-            self.site.messages.append("Сервопривод головы не вставлен.")
+            self.site.add_message("Сервопривод головы не вставлен.")
             return None
         self._flag_calibration = True
         self._servo_define = None
-        self.site.messages.append(f"Готов к калибровке. Установлено значение - {self.robot.centers[self.robot.body[self.chose_servo]]}.")
-        self.site.messages.append("Введите новое значение.")
+        self.site.add_message(f"Готов к калибровке. Установлено значение - {self.robot.centers[self.robot.body[self.chose_servo]]}.")
+        self.site.add_message("Введите новое значение.")
     
     def try_calibration(self, text):
         try:
-            self.site.messages.append(f"Введено число: {text}.")
+            self.site.add_message(f"Введено число: {text}.")
             text = int(text)
             if text == -1:
                 self._flag_calibration = False
                 self.chose_servo = None
-                text.messages.append("Центр сервопривода откалиброван.")
+                self.site.add_message("Центр сервопривода откалиброван.")
                 raise Exit("Центр сервопривода откалиброван.")
             
             self.robot.servo_run(self.robot.body[self.chose_servo], text)
@@ -316,7 +334,7 @@ class Commands:
                 writer.writerow(self.robot.centers)
 
         except (ValueError, TypeError):
-            self.site.messages.append('Введите целое неотрицательное число.')
+            self.site.add_message('Введите целое неотрицательное число.')
 
         except Exit:
             pass
@@ -326,28 +344,28 @@ class Commands:
         self._flag_calibration = False
         self._servo_define = None
         self.stop_execution = True
-        self.site.messages.append("Принудительная остановка процессов.")
+        self.site.add_message("Принудительная остановка процессов.")
     
     def create(self):
         """Создание функции."""
-        self.site.messages.append("")
+        self.site.add_message("")
         self._flag_calibration = False
-        self.site.messages.append("begin function")
+        self.site.add_message("begin function")
         self._flag_create = True
     
     def create_function(self, name, com):
-        com = [c.split() for c in com.splitlines()]
+        com = [line.strip().split() for line in com.splitlines()]
         self.user_commands[name] = com
         if self._flag_edit:
-            self.site.messages.append(f"Функция {name} изменена.")
+            self.site.add_message(f"Функция {name} изменена.")
             self._flag_edit = False
         else:
-            self.site.messages.append(f"Функция {name} создана.")
+            self.site.add_message(f"Функция {name} создана.")
         with open('user_commands.pkl', mode='wb') as file:
                 pickle.dump(self.user_commands, file)
         self._flag_create = False
 
-    def multy_execute(self, commands: list[list[str]]):
+    def multi_execute(self, commands: list[list[str]]):
         """
         Выполняет несколько комманд.
         
@@ -358,18 +376,28 @@ class Commands:
         i = 0
 
         while i < len(commands):
-            try:
-                self.multy_execute_in(commands, i)
-            except lgpio.error:
-                time.sleep(0.1)
-                self.multy_execute_in(commands, i)
-            except Exception as e:
-                self.site.messages.append(Exception)
-                self.site.messages.append(e)
-            
-            i += 1
+            lost_i2c = False
+            while True:
+                if self.stop_execution:
+                    return
+                try:
+                    i = self.multi_execute_in(commands, i)
+                    if lost_i2c:
+                        self.site.add_message("Соединение I2C восстановлено.")
+                    break
 
-    def multy_execute_in(self, commands, i):
+                except lgpio.error:
+                    if not lost_i2c:
+                        self.site.add_message("Потеряно соединение I2C.")
+                        lost_i2c = True
+                    time.sleep(0.1)
+                except Exception as e:
+                    self.site.add_message(e)
+                finally:
+                    self.running = False
+            
+
+    def multi_execute_in(self, commands, i):
         if self.stop_execution:
             return None
         command = commands[i]
@@ -380,8 +408,9 @@ class Commands:
                 i = self.if_func(command, commands, i)
             else:
                 if not self.execute(command):
-                    self.site.messages.append(command)
-                    self.site.messages.append("^^^^Ошибка. Команда не найдена^^^^")
+                    self.site.add_message(command)
+                    self.site.add_message("^^^^Ошибка. Команда не найдена^^^^")
+        return i + 1
             
     def execute(self, command: list[str]):
         """
@@ -390,11 +419,15 @@ class Commands:
         Args:
             command - команда
         """ 
-        if len(command) < 1:
-            self.site.messages.append("")
+        if not command:
+            self.site.add_message("")
             return True
-        elif len(command) > 2 and command[1] == "=":
+        elif len(command) > 2 and command[1] in (
+            "=", "+=", "-=", "*=", "/=", "//=", "%=", "**="
+        ):
             return self.assign(command)
+        elif self.stop_execution:
+            return False
         elif command[0] in self.default_btn_commands:
             self.default_btn_commands[command[0]]()
             return True
@@ -402,20 +435,18 @@ class Commands:
             self.default_commands[command[0]](command)
             return True
         elif command[0] in self.user_commands:
-            self.multy_execute(self.user_commands[command[0]])
+            self.start_execute(self.user_commands[command[0]])
             return True
         else:
-            self.site.messages.append("Ошибка. Команда не найдена.")
+            self.site.add_message("Ошибка. Команда не найдена.")
             return False
     
     def run(self, command):
         """Запуск сервопривода"""
         try:
             if len(command) == 3:
-                if command[2] in self.variables:
-                    value = self.variables[command[2]]
-                else:
-                    value = int(command[2])
+                expr = " ".join(command[2:])
+                value = int(self.eval_expr(expr))
                 self.robot.servo_run_name(command[1], value)
                 if self.robot.flag_success_run:
                     return True
@@ -428,23 +459,27 @@ class Commands:
             else:
                 raise IndexError("")
         except (ValueError, TypeError, IndexError):
-            self.site.messages.append("Ошибка входных параметров для run: run <выбранные сервопривод текстом> <значение>")
+            self.site.add_message("Ошибка входных параметров для run: run <выбранные сервопривод текстом> <значение>")
             return False
     
     def wait(self, command):
         """Задержка в секундах"""
         try:
             if len(command) == 2:
-                if command[1] in self.variables:
-                    value = self.variables[command[1]]
-                else:
-                    value = float(command[1])
-                time.sleep(value) # Заменить на datetime
+                expr = " ".join(command[2:])
+                value = int(self.eval_expr(expr))
+                end = time.time() + value
+
+                while time.time() < end:
+                    if self.stop_execution:
+                        return False
+                    time.sleep(0.02)
+
                 return True
             else:
                 raise IndexError
         except (ValueError, TypeError, IndexError):
-            self.site.messages.append("Ошибка входных параметров для run: run <выбранные сервопривод текстом> <значение>")
+            self.site.add_message("Ошибка входных параметров для wait: wait <выбранные сервопривод текстом> <значение>")
             return False
 
     def while_func(self, command, commands, index):
@@ -453,6 +488,10 @@ class Commands:
         depth = 1
         i = index + 1
         while i < len(commands):
+            if not commands[i]:
+                i += 1
+                continue
+
             cmd = commands[i][0]
             if cmd in ("while", "if"):
                 depth += 1
@@ -462,10 +501,13 @@ class Commands:
                     break
             body.append(commands[i])
             i += 1
+        if depth != 0:
+            self.site.add_message("Ошибка. Не найден end.")
+            return len(commands)
         while self.eval_expr(condition):
             if self.stop_execution:
                 return i
-            self.multy_execute(body)
+            self.multi_execute(body)
         return i
     
     def if_func(self, command, commands, index):
@@ -476,6 +518,10 @@ class Commands:
         depth = 1
         i = index + 1
         while i < len(commands):
+            if not commands[i]:
+                i += 1
+                continue
+
             cmd = commands[i][0]
             if cmd in ("while", "if"):
                 depth += 1
@@ -489,10 +535,13 @@ class Commands:
                 continue
             body.append(commands[i])
             i += 1
+        if depth != 0:
+            self.site.add_message("Ошибка. Не найден end.")
+            return len(commands)
         if self.eval_expr(condition):
-            self.multy_execute(true_body)
+            self.multi_execute(true_body)
         else:
-            self.multy_execute(false_body)
+            self.multi_execute(false_body)
         return i
     
 
@@ -535,7 +584,10 @@ class Commands:
                 "round": round,
             }
 
-            func = funcs[node.func.id]
+            func = funcs.get(node.func.id)
+
+            if func is None:
+                raise NameError(f"Функция '{node.func.id}' не существует")
 
             args = [self._eval(arg) for arg in node.args]
 
@@ -577,21 +629,50 @@ class Commands:
 
         try:
             value = self.eval_expr(expr)
+        except NameError as e:
+            self.site.add_message(str(e))
+            return
         except Exception:
             value = expr
 
-        self.site.messages.append(str(value))
+        self.site.add_message(str(value))
 
 
     def assign(self, command):
         try:
-            if command[1] != "=":
-                raise ValueError
             name = command[0]
+
+            if not name.isidentifier():
+                raise ValueError("Некорректное имя переменной")
+
+            op = command[1]
             expr = " ".join(command[2:])
-            self.variables[name] = self.eval_expr(expr)
+            value = self.eval_expr(expr)
+
+            if op == "=":
+                self.variables[name] = value
+
+            else:
+                if name not in self.variables:
+                    raise NameError(f"Переменная '{name}' не существует")
+
+                if op == "+=":
+                    self.variables[name] += value
+                elif op == "-=":
+                    self.variables[name] -= value
+                elif op == "*=":
+                    self.variables[name] *= value
+                elif op == "/=":
+                    self.variables[name] /= value
+                elif op == "//=":
+                    self.variables[name] //= value
+                elif op == "%=":
+                    self.variables[name] %= value
+                elif op == "**=":
+                    self.variables[name] **= value
+
             return True
 
         except Exception as e:
-            self.site.messages.append(f"Ошибка присваивания: {e}")
+            self.site.add_message(f"Ошибка присваивания: {e}")
             return False

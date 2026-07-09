@@ -206,6 +206,9 @@
 </div>
 
 </form>
+<script>
+let index = {{ message|length }};
+</script>
 
 <script>
 function scrollDown() {
@@ -446,6 +449,31 @@ if(textarea){
     });
 
 }
+
+
+setInterval(async () => {
+
+    const response = await fetch(`/messages?from=${index}`);
+
+    const messages = await response.json();
+
+    messages.forEach(addMessage);
+
+    index += messages.length;
+
+}, 100);
+
+function addMessage(text) {
+    const box = document.getElementById("messages");
+
+    const div = document.createElement("div");
+    div.className = "msg";
+    div.textContent = text;
+
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+}
+
 </script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/image-map-resizer/1.0.10/js/imageMapResizer.min.js"></script>

@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, jsonify, request, redirect, url_for
+import threading
 
 
 class Site:
@@ -7,6 +8,7 @@ class Site:
         self.app = Flask(__name__)
         self.messages = []
         self.debug = True
+        self.messages_lock = threading.Lock()
 
         self.app.add_url_rule(
             "/",
@@ -14,10 +16,25 @@ class Site:
             view_func=self.index,
             methods=["GET", "POST"]
         )
+        self.app.add_url_rule(
+            "/messages",
+            endpoint="messages",
+            view_func=self.get_messages,
+        )
 
     def bind(self, robot, commands):
         self.robot = robot
         self.commands = commands
+    
+    def get_messages(self):
+        start = int(request.args.get("from", 0))
+
+        with self.messages_lock:
+            return jsonify(self.messages[start:])
+
+    def add_message(self, text):
+        with self.messages_lock:
+            self.messages.append(text)
 
     def index(self):
         """Главная страница."""
