@@ -4,6 +4,7 @@ import time
 import ast
 import operator
 import lgpio
+import threading
 
 OPS = {
     ast.Add: operator.add,
@@ -27,6 +28,7 @@ class Exit(Exception):
 
 class Commands:
     def __init__(self, robot, site):
+        self.running = False
         self.robot = robot
         self.site = site
         self.default_btn_commands = {
@@ -86,7 +88,15 @@ class Commands:
                     pickle.dump(self.robot.body, file)
             else:
                 self.define()
-
+    
+    def start_program(self, commands):
+        thread = threading.Thread(
+            target=self.multi_execute,
+            args=(commands,),
+            daemon=True
+        )
+        thread.start()
+    
     def post_query(self, text, function_name, function_body, btn, 
                    area, delete_ser_button, edit, action):
         """Post-запрос"""
@@ -98,7 +108,7 @@ class Commands:
         elif text in self.user_commands:
             print("self.user_commands")
             self.site.messages.append(f"Запущена функция {text}")
-            self.multi_execute(self.user_commands[text])
+            self.start_program(self.user_commands[text])
         
         elif len(text) > 1:
             if text.split()[0] in self.default_commands:
@@ -159,7 +169,7 @@ class Commands:
         elif btn in self.user_commands:
             print("btn_self.user_commands")
             self.site.messages.append(f"Запущена функция {btn}")
-            self.multi_execute(self.user_commands[btn])
+            self.start_program(self.user_commands[btn])
 
         elif btn:
             print("btn пролет")
@@ -354,25 +364,33 @@ class Commands:
         Args:
             commands - команды
         """
-        self.stop_execution = False
-        i = 0
+        if self.running:
+            self.site.messages.append("Программа уже выполняется.")
+            return
 
-        while i < len(commands):
-            lost_i2c = False
-            while True:
-                if self.stop_execution:
-                    return
-                try:
-                    i = self.multi_execute_in(commands, i)
-                    if lost_i2c:
-                        self.site.messages.append("Соединение I2C восстановлено.")
-                    break
+        self.running = True
+        try:
+            self.stop_execution = False
+            i = 0
 
-                except lgpio.error:
-                    if not lost_i2c:
-                        self.site.messages.append("Потеряно соединение I2C.")
-                        lost_i2c = True
-                    time.sleep(0.1)
+            while i < len(commands):
+                lost_i2c = False
+                while True:
+                    if self.stop_execution:
+                        return
+                    try:
+                        i = self.multi_execute_in(commands, i)
+                        if lost_i2c:
+                            self.site.messages.append("Соединение I2C восстановлено.")
+                        break
+
+                    except lgpio.error:
+                        if not lost_i2c:
+                            self.site.messages.append("Потеряно соединение I2C.")
+                            lost_i2c = True
+                        time.sleep(0.1)
+        finally:
+            self.running = False
 
     def multi_execute_in(self, commands, i):
         if self.stop_execution:
@@ -412,7 +430,7 @@ class Commands:
             self.default_commands[command[0]](command)
             return True
         elif command[0] in self.user_commands:
-            self.multi_execute(self.user_commands[command[0]])
+            self.start_program(self.user_commands[command[0]])
             return True
         else:
             self.site.messages.append("Ошибка. Команда не найдена.")
