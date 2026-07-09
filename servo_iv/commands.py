@@ -439,7 +439,7 @@ class Commands:
     def wait(self, command):
         """Задержка в секундах"""
         try:
-            expr = " ".join(command[2:])
+            expr = " ".join(command[1:])
             value = int(self.eval_expr(expr))
             end = time.time() + value
             while time.time() < end:
@@ -447,7 +447,6 @@ class Commands:
                     return False
                 time.sleep(0.02)
 
-            return True
             return True
         except (ValueError, TypeError, IndexError):
             self.site.messages.append("Ошибка входных параметров для wait: wait <секунды>")
