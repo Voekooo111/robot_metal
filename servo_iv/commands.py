@@ -370,7 +370,10 @@ class Commands:
                         if not self.execute(command):
                             self.site.messages.append(command)
                             self.site.messages.append("^^^^Ошибка. Команда не найдена^^^^")
+            except lgpio.error:
+                pass
             except Exception as e:
+                self.site.messages.append(Exception)
                 self.site.messages.append(e)
             
             i += 1
