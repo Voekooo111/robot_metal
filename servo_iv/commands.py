@@ -133,6 +133,8 @@ class Commands:
             print("удаление")
             if delete_ser_button in self.user_commands:
                 self.user_commands.pop(delete_ser_button, "Not Found")
+                with open('user_commands.pkl', mode='wb') as file:
+                    pickle.dump(self.user_commands, file)
             else:
                 self.site.messages.append("Ошибка. Функция не найдена.")
         
