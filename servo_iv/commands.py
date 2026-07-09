@@ -360,16 +360,17 @@ class Commands:
             try:
                 if self.stop_execution:
                     return None
-                command = commands[i]
-                if command[0] == "while":
-                    i = self.while_func(command, commands, i)
-                elif command[0] == "if":
-                    i = self.if_func(command, commands, i)
-                else:
-                    if not self.execute(command):
-                        self.site.messages.append(command)
-                        self.site.messages.append("^^^^Ошибка. Команда не найдена^^^^")
-            except RecursionError as e:
+                if len(commands) > 0:
+                    command = commands[i]
+                    if command[0] == "while":
+                        i = self.while_func(command, commands, i)
+                    elif command[0] == "if":
+                        i = self.if_func(command, commands, i)
+                    else:
+                        if not self.execute(command):
+                            self.site.messages.append(command)
+                            self.site.messages.append("^^^^Ошибка. Команда не найдена^^^^")
+            except Exception as e:
                 self.site.messages.append(e)
             
             i += 1
