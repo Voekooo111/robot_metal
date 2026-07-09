@@ -365,16 +365,16 @@ class Commands:
                 try:
                     i = self.multi_execute_in(commands, i)
                     if lost_i2c:
-                        self.site.add_message("Соединение I2C восстановлено.")
+                        self.site.messages.append("Соединение I2C восстановлено.")
                     break
 
                 except lgpio.error:
                     if not lost_i2c:
-                        self.site.add_message("Потеряно соединение I2C.")
+                        self.site.messages.append("Потеряно соединение I2C.")
                         lost_i2c = True
                     time.sleep(0.1)
                 except Exception as e:
-                    self.site.add_message(e)
+                   self.site.messages.append(e)
                 finally:
                     self.running = False
 
