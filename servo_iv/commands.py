@@ -3,6 +3,7 @@ import csv
 import time
 import ast
 import operator
+import lgpio
 
 OPS = {
     ast.Add: operator.add,
@@ -358,26 +359,29 @@ class Commands:
 
         while i < len(commands):
             try:
-                if self.stop_execution:
-                    return None
-                command = commands[i]
-                if len(command) > 0:
-                    if command[0] == "while":
-                        i = self.while_func(command, commands, i)
-                    elif command[0] == "if":
-                        i = self.if_func(command, commands, i)
-                    else:
-                        if not self.execute(command):
-                            self.site.messages.append(command)
-                            self.site.messages.append("^^^^Ошибка. Команда не найдена^^^^")
+                self.multy_execute_in(commands, i)
             except lgpio.error:
-                pass
+                time.sleep(0.1)
+                self.multy_execute_in(commands, i)
             except Exception as e:
                 self.site.messages.append(Exception)
                 self.site.messages.append(e)
             
             i += 1
-            
+
+    def multy_execute_in(self, commands, i):
+        if self.stop_execution:
+            return None
+        command = commands[i]
+        if len(command) > 0:
+            if command[0] == "while":
+                i = self.while_func(command, commands, i)
+            elif command[0] == "if":
+                i = self.if_func(command, commands, i)
+            else:
+                if not self.execute(command):
+                    self.site.messages.append(command)
+                    self.site.messages.append("^^^^Ошибка. Команда не найдена^^^^")
             
     def execute(self, command: list[str]):
         """
