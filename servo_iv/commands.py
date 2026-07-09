@@ -427,7 +427,10 @@ class Commands:
         """Задержка в секундах"""
         try:
             if len(command) == 2:
-                value = float(command[1])
+                if command[1] in self.variables:
+                    value = self.variables[command[1]]
+                else:
+                    value = float(command[1])
                 time.sleep(value) # Заменить на datetime
                 return True
             else:
