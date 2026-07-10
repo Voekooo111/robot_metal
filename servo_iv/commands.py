@@ -360,36 +360,24 @@ class Commands:
         i = 0
 
         while i < len(commands):
-            lost_i2c = False
+            run_i2c = True
             while True:
                 if self.stop_execution:
                     return
                 try:
+                    if not run_i2c:
+                        self.site.messages.append("Соединение I2C восстановлено.")
+                        for ch, value in enumerate(self.robot.pwm):
+                            if value is not None:
+                                self.robot.servo_run(ch, value)
                     i = self.multi_execute_in(commands, i)
                     break
                 except lgpio.error:
-                    if not lost_i2c:
+                    if run_i2c:
                         self.site.messages.append("Потеряно соединение I2C.")
-                        lost_i2c = True
-                    self.reconnect()
-                    self.site.messages.append("Соединение I2C восстановлено.")
-
-    def reconnect(self):
-        while True:
-            try:
-                self.robot.close()
-                self.robot.connect()
-                time.sleep(0.5)
-                self.robot.setting()
-
-                for ch, value in enumerate(self.robot.pwm):
-                    if value is not None:
-                        self.robot.servo_run(ch, value)
-
-                return
-
-            except lgpio.error:
-                time.sleep(0.2)
+                        run_i2c = False
+                    else:
+                        time.sleep(0.2)
 
     def multi_execute_in(self, commands, i):
         if self.stop_execution:
