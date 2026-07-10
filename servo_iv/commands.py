@@ -366,24 +366,36 @@ class Commands:
                     return
                 try:
                     i = self.multi_execute_in(commands, i)
-                    if lost_i2c:
-                        self.robot.close()
-                        self.robot.connect()
-                        self.robot.setting()
-                        for ch, value in enumerate(self.robot.pwm):
-                            self.robot.servo_run(ch, value)
-                        self.site.messages.append("Соединение I2C восстановлено.")
                     break
-
                 except lgpio.error:
                     if not lost_i2c:
                         self.site.messages.append("Потеряно соединение I2C.")
                         lost_i2c = True
-                    time.sleep(0.2)
+                    self.reconnect()
+                    self.site.messages.append("Соединение I2C восстановлено.")
+
+    def reconnect(self):
+        while True:
+            try:
+                self.robot.close()
+                self.robot.connect()
+                time.sleep(0.5)
+                self.robot.setting()
+
+                for ch, value in enumerate(self.robot.pwm):
+                    if value is not None:
+                        self.robot.servo_run(ch, value)
+
+                return
+
+            except lgpio.error:
+                time.sleep(0.2)
 
     def multi_execute_in(self, commands, i):
         if self.stop_execution:
-            return None
+            return i
+        if i >= len(commands):
+            return i
         command = commands[i]
         if len(command) > 0:
             if command[0] == "while":
@@ -481,10 +493,9 @@ class Commands:
         if depth != 0:
             self.site.messages.append("Ошибка. Не найден end.")
             return len(commands)
-        while self.eval_expr(condition):
-            if self.stop_execution:
-                return i
+        while self.eval_expr(condition) and not self.stop_execution:
             self.multi_execute(body)
+
         return i
     
     def if_func(self, command, commands, index):
@@ -495,6 +506,9 @@ class Commands:
         depth = 1
         i = index + 1
         while i < len(commands):
+            if not commands[i]:
+                i += 1
+                continue
             cmd = commands[i][0]
             if cmd in ("while", "if"):
                 depth += 1
