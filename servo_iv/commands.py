@@ -90,16 +90,11 @@ class Commands:
     def post_query(self, text, function_name, function_body, btn, 
                    area, delete_ser_button, edit, action):
         """Post-запрос"""
-        if text in self.default_btn_commands:
+        if text in list(self.default_btn_commands) + list(self.user_commands):
             print("self.default_btn_commands")
             self.site.messages.append(f"Запущена функция {text}")
-            self.default_btn_commands[text]()
+            self.multi_execute([text.split()])
 
-        elif text in self.user_commands:
-            print("self.user_commands")
-            self.site.messages.append(f"Запущена функция {text}")
-            self.multi_execute(self.user_commands[text])
-        
         elif len(text) > 1:
             if text.split()[0] in self.default_commands:
                 print("self.default_commands")
@@ -153,13 +148,7 @@ class Commands:
             print("text пролет")
             self.site.messages.append(text)
 
-        elif btn in self.default_btn_commands:
-            print("btn_self.default_btn_commands")
-            self.site.messages.append(f"Запущена функция {btn}")
-            self.default_btn_commands[btn]()
-
-        elif btn in self.user_commands:
-            print("btn_self.user_commands")
+        elif btn in list(self.default_btn_commands) + list(self.user_commands):
             self.site.messages.append(f"Запущена функция {btn}")
             self.multi_execute(self.user_commands[btn])
 
@@ -418,8 +407,8 @@ class Commands:
         elif command[0] in self.default_commands:
             self.default_commands[command[0]](command)
             return True
-        elif command[0] in self.user_commands:
-            self.multi_execute(self.user_commands[command[0]])
+        elif command in self.user_commands:
+            self.multi_execute(self.user_commands[command])
             return True
         else:
             self.site.messages.append("Ошибка. Команда не найдена.")
