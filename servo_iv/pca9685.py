@@ -41,6 +41,7 @@ class Pca:
         """
         lgpio.i2c_write_byte_data(self.i2c_handle, 0x07 + 4 * channel, 0x00)
         lgpio.i2c_write_byte_data(self.i2c_handle, 0x09 + 4 * channel, 0x10)
+        return None
     
     def servo_run(self, channel: int, pulse: int):
         """
