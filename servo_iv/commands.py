@@ -150,7 +150,7 @@ class Commands:
 
         elif btn in list(self.default_btn_commands) + list(self.user_commands):
             self.site.messages.append(f"Запущена функция {btn}")
-            self.multi_execute(btn)
+            self.multi_execute([btn])
 
         elif btn:
             print("btn пролет")
