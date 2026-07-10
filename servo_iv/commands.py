@@ -321,7 +321,7 @@ class Commands:
         time.sleep(0.2)
         self.robot.connect()
         time.sleep(0.2)
-        self.robot.settings()
+        self.robot.setting()
         for i in self.robot.body:
             self.robot.servo_stop_name(i)
             time.sleep(0.1)
