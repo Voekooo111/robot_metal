@@ -401,6 +401,7 @@ class Commands:
         Args:
             command - команда
         """ 
+        self.site.messages.append(command)
         if self.stop_execution:
             return False
         if not command:
@@ -416,7 +417,7 @@ class Commands:
         elif command[0] in self.default_commands:
             self.default_commands[command[0]](command)
             return True
-        elif command in self.user_commands:
+        elif command[0] in self.user_commands:
             self.multi_execute(self.user_commands[command])
             return True
         else:
