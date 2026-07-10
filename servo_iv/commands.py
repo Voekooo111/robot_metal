@@ -347,14 +347,15 @@ class Commands:
                 pickle.dump(self.user_commands, file)
         self._flag_create = False
 
-    def multi_execute(self, commands: list[list[str]]):
+    def multi_execute(self, commands: list[list[str]], reset_stop=True):
         """
         Выполняет несколько комманд.
         
         Args:
             commands - команды
         """
-        self.stop_execution = False
+        if reset_stop:
+            self.stop_execution = False
         i = 0
 
         while i < len(commands):
@@ -417,7 +418,7 @@ class Commands:
             self.default_commands[command[0]](command)
             return True
         elif command[0] in self.user_commands:
-            self.multi_execute(self.user_commands[command])
+            self.multi_execute(self.user_commands[command[0]], reset_stop=False)
             return True
         else:
             self.site.messages.append("Ошибка. Команда не найдена.")
@@ -522,7 +523,7 @@ class Commands:
         try:
             tree = ast.parse(expr, mode="eval")
             return self._eval(tree.body)
-        except SyntaxError as e:
+        except Exception as e:
             self.site.messages.append(f"Синтаксическая ошибка в выражении: {expr} – {e}")
 
 
