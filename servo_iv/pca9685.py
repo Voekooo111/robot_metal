@@ -59,6 +59,7 @@ class Pca:
         lgpio.i2c_write_byte_data(self.i2c_handle, start_reg+1, 0)
         lgpio.i2c_write_byte_data(self.i2c_handle, start_reg+2, off_low)
         lgpio.i2c_write_byte_data(self.i2c_handle, start_reg+3, off_high)
+        return pulse
     
     def close(self):
         """

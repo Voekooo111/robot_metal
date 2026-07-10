@@ -367,6 +367,11 @@ class Commands:
                 try:
                     i = self.multi_execute_in(commands, i)
                     if lost_i2c:
+                        self.robot.close()
+                        self.robot.connect()
+                        self.robot.setting()
+                        for ch, value in enumerate(self.robot.pwm):
+                            self.robot.servo_run(ch, value)
                         self.site.messages.append("Соединение I2C восстановлено.")
                     break
 
@@ -567,9 +572,14 @@ class Commands:
         elif isinstance(node, ast.Name):
             if node.id == "robot":
                 return self.robot
-            if node.id == "site":
+            elif node.id == "site":
                 return self.site
-            if node.id in self.variables:
+            elif node.id in self.robot.body:
+                servo = self.robot.body[node.id]
+                return self.robot.pwm[servo]
+            elif node.id in self.robot.bodypart:
+                return tuple(self.robot.pwm[servo] for servo in self.robot.bodypart[node.id])
+            elif node.id in self.variables:
                 return self.variables[node.id]
             raise NameError(f"Переменная '{node.id}' не существует")
 

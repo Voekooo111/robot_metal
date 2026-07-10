@@ -53,6 +53,7 @@ class Robot_pca(Pca):
             self.servo_side = [-1, -1, 1, 1, 1, -1, -1, -1, 1, -1, 1, 1, 1, -1, 1, -1]
         else:
             self.servo_side = [1] * self.count_servo
+        self.pwm = [1500] * self.count_servo
     
     def class_start(self):
         """Преднастройка класса."""
@@ -179,7 +180,7 @@ class Robot_pca(Pca):
         else:
             self.flag_success_run = False
         for b_n in body_num:
-            self.servo_run(b_n, 
+            self.pwm[b_n] = self.servo_run(b_n, 
                     self.centers[b_n] + value * self.servo_side[b_n])
 
     def servo_stop_name(self, name: str):
