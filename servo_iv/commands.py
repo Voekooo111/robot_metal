@@ -339,6 +339,7 @@ class Commands:
         for name in self.robot.body:
             try:
                 self.robot.servo_stop_name(name)
+                time.sleep(0.5)
             except Exception:
                 pass
 
@@ -387,6 +388,9 @@ class Commands:
                         for ch, value in enumerate(self.robot.pwm):
                             if value is not None:
                                 self.robot.servo_run(ch, value)
+                            else:
+                                self.robot.servo_stop(ch)
+                            time.sleep(0.2)
                     i = self.multi_execute_in(commands, i)
                     break
                 except lgpio.error:
