@@ -53,7 +53,7 @@ class Robot_pca(Pca):
             self.servo_side = [-1, -1, 1, 1, 1, -1, -1, -1, 1, -1, 1, 1, 1, -1, 1, -1]
         else:
             self.servo_side = [1] * self.count_servo
-        self.pwm = [1500] * self.count_servo
+        self.pwm = [None] * self.count_servo
     
     def class_start(self):
         """Преднастройка класса."""
