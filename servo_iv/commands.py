@@ -313,21 +313,39 @@ class Commands:
             pass
 
     def stop(self):
-        """Остановка процесса."""
+        """Принудительная остановка процесса."""
         self._flag_calibration = False
         self._servo_define = None
+
+        # Сигнал всем циклам завершиться
         self.stop_execution = True
-        self.robot.close()
-        time.sleep(0.2)
-        self.robot.connect()
-        time.sleep(0.2)
-        self.robot.setting()
-        for i in self.robot.body:
-            self.robot.servo_stop_name(i)
-            time.sleep(0.1)
+
+        # Даём run()/wait()/while выйти
+        time.sleep(0.05)
+
+        try:
+            self.robot.close()
+        except Exception:
+            pass
+
+        time.sleep(0.1)
+
+        try:
+            self.robot.connect()
+            self.robot.setting()
+        except Exception:
+            pass
+
+        for name in self.robot.body:
+            try:
+                self.robot.servo_stop_name(name)
+            except Exception:
+                pass
+
         self.robot.pwm = [None] * self.robot.count_servo
+
         self.site.messages.append("Принудительная остановка процессов.")
-    
+
     def create(self):
         """Создание функции."""
         self.site.messages.append("")
@@ -372,6 +390,9 @@ class Commands:
                     i = self.multi_execute_in(commands, i)
                     break
                 except lgpio.error:
+                    if self.stop_execution:
+                        return
+
                     if run_i2c:
                         self.site.messages.append("Потеряно соединение I2C.")
                         run_i2c = False
@@ -415,8 +436,7 @@ class Commands:
             self.default_btn_commands[command[0]]()
             return True
         elif command[0] in self.default_commands:
-            self.default_commands[command[0]](command)
-            return True
+            return self.default_commands[command[0]](command)
         elif command[0] in self.user_commands:
             self.multi_execute(self.user_commands[command[0]], reset_stop=False)
             return True
@@ -433,7 +453,10 @@ class Commands:
                     return True
                 return False
             expr = " ".join(command[2:])
-            value = int(self.eval_expr(expr))
+            value = self.eval_expr(expr)
+            if value is None:
+                return False
+            value = int(value)
             self.robot.servo_run_name(command[1], value)
             if self.robot.flag_success_run:
                 return True
@@ -446,7 +469,10 @@ class Commands:
         """Задержка в секундах"""
         try:
             expr = " ".join(command[1:])
-            value = float(self.eval_expr(expr))
+            value = self.eval_expr(expr)
+            if value is None:
+                return False
+            value = float(value)
             end = time.time() + value
             while time.time() < end:
                 if self.stop_execution:
@@ -480,8 +506,13 @@ class Commands:
         if depth != 0:
             self.site.messages.append("Ошибка. Не найден end.")
             return len(commands)
-        while self.eval_expr(condition) and not self.stop_execution:
-            self.multi_execute(body)
+        while not self.stop_execution:
+            condition_value = self.eval_expr(condition)
+
+            if not condition_value:
+                break
+
+            self.multi_execute(body, reset_stop=False)
 
         return i
     
@@ -513,9 +544,9 @@ class Commands:
             self.site.messages.append("Ошибка. Не найден end.")
             return len(commands)
         if self.eval_expr(condition):
-            self.multi_execute(true_body)
+            self.multi_execute(true_body, reset_stop=False)
         else:
-            self.multi_execute(false_body)
+            self.multi_execute(false_body, reset_stop=False)
         return i
     
 
@@ -523,8 +554,11 @@ class Commands:
         try:
             tree = ast.parse(expr, mode="eval")
             return self._eval(tree.body)
+        except SyntaxError as e:
+            self.site.messages.append(f"Синтаксическая ошибка: {e}")
+
         except Exception as e:
-            self.site.messages.append(f"Синтаксическая ошибка в выражении: {expr} – {e}")
+            self.site.messages.append(str(e))
 
 
     def _eval(self, node):
@@ -609,16 +643,10 @@ class Commands:
     def print_func(self, command):
         expr = " ".join(command[1:])
 
-        try:
-            value = self.eval_expr(expr)
-        except NameError as e:
-            self.site.messages.append(str(e))
-            return
-        except Exception:
-            value = expr
+        value = self.eval_expr(expr)
 
-        self.site.messages.append(str(value))
-
+        if value is not None:
+            self.site.messages.append(str(value))
 
     def assign(self, command):
         try:
