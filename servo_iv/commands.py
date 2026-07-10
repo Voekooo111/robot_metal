@@ -317,6 +317,15 @@ class Commands:
         self._flag_calibration = False
         self._servo_define = None
         self.stop_execution = True
+        self.robot.close()
+        time.sleep(0.2)
+        self.robot.connect()
+        time.sleep(0.2)
+        self.robot.settings()
+        for i in self.robot.body:
+            self.robot.servo_stop_name(i)
+            time.sleep(0.1)
+        self.robot.pwm = [None] * self.robot.count_servo
         self.site.messages.append("Принудительная остановка процессов.")
     
     def create(self):
