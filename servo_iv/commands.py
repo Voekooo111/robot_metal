@@ -104,7 +104,7 @@ class Commands:
             if text.split()[0] in self.default_commands:
                 print("self.default_commands")
                 self.site.messages.append(text)
-                self.default_commands[text.split()[0]](text.split())
+                self.multi_execute([text.split()])
                 return None
         if text == "begin":
             print("begin")
