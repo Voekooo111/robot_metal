@@ -71,23 +71,23 @@ class Commands:
         except Exception:
             pass
     
-    def area_click(self, area):
-        self.chose_servo = area
-        self.site.messages.append(f"Выбран сервопривод: {area}.")
-        if self._servo_define is not None:
-            # определение сервоприводов
-            if area in self.robot.body.keys():
-                self.robot.body[area] = self._servo_define
-                self.define()
-            if self._servo_define == 15:
-                self._servo_define = None
-                self.chose_servo = None
-                self.site.messages.append("Сервоприводы успешно определены.")
-                with open('define.pkl', mode='wb') as file:
-                    pickle.dump(self.robot.body, file)
-            else:
-                self._servo_define -= 1
-                self.define()
+    # def area_click(self, area):
+    #     self.chose_servo = area
+    #     self.site.messages.append(f"Выбран сервопривод: {area}.")
+    #     if self._servo_define is not None:
+    #         # определение сервоприводов
+    #         if area in self.robot.body.keys():
+    #             self.robot.body[area] = self._servo_define
+    #             self.define()
+    #         if self._servo_define == 15:
+    #             self._servo_define = None
+    #             self.chose_servo = None
+    #             self.site.messages.append("Сервоприводы успешно определены.")
+    #             with open('define.pkl', mode='wb') as file:
+    #                 pickle.dump(self.robot.body, file)
+    #         else:
+    #             self._servo_define -= 1
+    #             self.define()
 
     def post_query(self, text, function_name, function_body, btn, 
                    area, delete_ser_button, edit, action):
@@ -100,19 +100,14 @@ class Commands:
         elif self._servo_define is not None and text in self.robot.body.keys():
             # определение сервоприводов
             self.site.messages.append(f"Выбран сервопривод: {text}.")
-            if text in self.robot.body.keys():
-                self.robot.body[text] = self._servo_define
-                self.define()
+            self.robot.body[text] = self._servo_define
+            self.define()
             if self._servo_define == 15:
                 self._servo_define = None
                 self.chose_servo = None
                 self.site.messages.append("Сервоприводы успешно определены.")
                 with open('define.pkl', mode='wb') as file:
                     pickle.dump(self.robot.body, file)
-            else:
-                self.site.messages.append(f"Сервопривод {text} отсутствует.")
-                self._servo_define -= 1
-                self.define()
 
         elif len(text) > 1:
             if text.split()[0] in self.default_commands:
