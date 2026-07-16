@@ -92,33 +92,40 @@ class Commands:
     def post_query(self, text, function_name, function_body, btn, 
                    area, delete_ser_button, edit, action):
         """Post-запрос"""
-        if text in list(self.default_btn_commands) + list(self.user_commands):
+        if self._servo_define is None and text in list(self.default_btn_commands) + list(self.user_commands):
             print("self.default_btn_commands")
             self.site.messages.append(f"Запущена функция {text}")
             self.multi_execute([text.split()])
+
+        elif self._servo_define is None and len(text) > 1:
+            if text.split()[0] in self.default_commands:
+                print("self.default_commands")
+                self.site.messages.append(text)
+                self.multi_execute([text.split()])
+                return None
+
+        if text == "begin":
+            print("begin")
+            self.create()
         
         elif self._servo_define is not None and text in self.robot.body.keys():
             # определение сервоприводов
             self.site.messages.append(f"Выбран сервопривод: {text}.")
+            self.robot.servo_stop(self._servo_define)
             self.robot.body[text] = self._servo_define
-            self.define()
             if self._servo_define == 15:
                 self._servo_define = None
                 self.chose_servo = None
                 self.site.messages.append("Сервоприводы успешно определены.")
                 with open('define.pkl', mode='wb') as file:
                     pickle.dump(self.robot.body, file)
+            else:
+                self.define()
 
-        elif len(text) > 1:
-            if text.split()[0] in self.default_commands:
-                print("self.default_commands")
-                self.site.messages.append(text)
-                self.multi_execute([text.split()])
-                return None
-        if text == "begin":
-            print("begin")
-            self.create()
-        
+        elif self._servo_define:
+            self.site.messages.append("Завершите определение сервоприводов.")
+            self.site.messages.append(f"{text} отсутствует.")
+
         elif function_body != "" and (text == "save" or text == "end" or action == "save"):
             print("сохранение текста в редакторе")
             # сохранение текста в редакторе
@@ -288,7 +295,6 @@ class Commands:
         time.sleep(0.6)
         self.robot.servo_run(self._servo_define, 1800)
         time.sleep(0.2)
-        self.robot.servo_stop(self._servo_define)
         self.site.messages.append(f"Выберите сервопривод. {self._servo_define}/{self.robot.count_servo-1}.")
 
     def calibration(self):
