@@ -97,7 +97,7 @@ class Commands:
             self.site.messages.append(f"Запущена функция {text}")
             self.multi_execute([text.split()])
         
-        elif self._servo_define is not None and text in self.robot.body:
+        elif self._servo_define is not None and text in self.robot.body.keys():
             # определение сервоприводов
             self.site.messages.append(f"Выбран сервопривод: {text}.")
             if area in self.robot.body.keys():
@@ -110,6 +110,7 @@ class Commands:
                 with open('define.pkl', mode='wb') as file:
                     pickle.dump(self.robot.body, file)
             else:
+                self.site.messages.append(f"Сервопривод {text} отсутствует.")
                 self._servo_define -= 1
                 self.define()
 
