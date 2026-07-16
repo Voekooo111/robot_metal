@@ -100,8 +100,8 @@ class Commands:
         elif self._servo_define is not None and text in self.robot.body.keys():
             # определение сервоприводов
             self.site.messages.append(f"Выбран сервопривод: {text}.")
-            if area in self.robot.body.keys():
-                self.robot.body[area] = self._servo_define
+            if text in self.robot.body.keys():
+                self.robot.body[text] = self._servo_define
                 self.define()
             if self._servo_define == 15:
                 self._servo_define = None
