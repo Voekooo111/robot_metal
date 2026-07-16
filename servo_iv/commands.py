@@ -96,6 +96,22 @@ class Commands:
             print("self.default_btn_commands")
             self.site.messages.append(f"Запущена функция {text}")
             self.multi_execute([text.split()])
+        
+        elif self._servo_define is not None and text in self.robot.body:
+            # определение сервоприводов
+            self.site.messages.append(f"Выбран сервопривод: {text}.")
+            if area in self.robot.body.keys():
+                self.robot.body[area] = self._servo_define
+                self.define()
+            if self._servo_define == 15:
+                self._servo_define = None
+                self.chose_servo = None
+                self.site.messages.append("Сервоприводы успешно определены.")
+                with open('define.pkl', mode='wb') as file:
+                    pickle.dump(self.robot.body, file)
+            else:
+                self._servo_define -= 1
+                self.define()
 
         elif len(text) > 1:
             if text.split()[0] in self.default_commands:

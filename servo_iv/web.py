@@ -21,10 +21,10 @@ class Site:
 
     def index(self):
         """Главная страница."""
-        area = request.args.get("area")
-        if area:
-            self.commands.area_click(area)
-            return redirect(url_for("index"))
+        # area = request.args.get("area")
+        # if area:
+        #     self.commands.area_click(area)
+        #     return redirect(url_for("index"))
 
         if request.method == "POST":
             text = request.form.get("text")
