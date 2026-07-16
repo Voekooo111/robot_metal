@@ -78,6 +78,7 @@ class Commands:
             # определение сервоприводов
             if area in self.robot.body.keys():
                 self.robot.body[area] = self._servo_define
+                self.define()
             if self._servo_define == 15:
                 self._servo_define = None
                 self.chose_servo = None
@@ -85,6 +86,7 @@ class Commands:
                 with open('define.pkl', mode='wb') as file:
                     pickle.dump(self.robot.body, file)
             else:
+                self._servo_define -= 1
                 self.define()
 
     def post_query(self, text, function_name, function_body, btn, 
