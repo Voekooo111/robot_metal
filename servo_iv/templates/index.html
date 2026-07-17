@@ -242,8 +242,7 @@ function editUserButton(name){
 
 }
 
-function addArea(area){
-    alert(editor);
+function addArea(area){;
     if(editor){
 
         const doc = editor.getDoc();
@@ -251,15 +250,7 @@ function addArea(area){
 
         const line = doc.getLine(cursor.line);
 
-        console.log(cursor);
-        console.log(JSON.stringify(line));
-        console.log(line.slice(0, cursor.ch) + "|" + line.slice(cursor.ch));
-
         const pos = doc.getCursor();
-        alert(
-            "line: [" + doc.getLine(pos.line) + "]\n" +
-            "cursor: " + pos.ch
-        );
 
         doc.replaceRange(area, pos);
 
@@ -270,10 +261,6 @@ function addArea(area){
     const input = document.getElementById("chatInput");
 
     if(input){
-
-        if(input.value.length)
-            input.value += " ";
-
         input.value += area;
         input.focus();
     }
