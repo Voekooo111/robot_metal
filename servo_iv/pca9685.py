@@ -51,7 +51,7 @@ class Pca:
             channel - канал устройства
             pulse - мкс угла серво.
         """
-        pulse = max(500, min(pulse, 2500))
+        pulse = max(100, min(pulse, 2900))
         r_time = round(pulse * self.freq * 4096 / 1_000_000)
         off_low = r_time & 0b11111111
         off_high = (r_time >> 8) & 0x0F
