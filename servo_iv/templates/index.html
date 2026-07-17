@@ -251,14 +251,7 @@ function addArea(area){
 
         const line = doc.getLine(cursor.line);
 
-        const needSpace =
-            cursor.ch > 0 &&
-            !/\s/.test(line[cursor.ch-1]);
-
-        doc.replaceRange(
-            (needSpace ? " " : "") + area,
-            cursor
-        );
+        doc.replaceRange(area, cursor);
 
         editor.focus();
         return;
