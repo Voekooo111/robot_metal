@@ -80,11 +80,11 @@ class Robot_pca(Pca):
 
         except FileNotFoundError:
             for i in range(self.count_servo):
-                self.servo_run(i, 1500)
+                self.servo_run(i, 1800)
                 time.sleep(1)
                 self.servo_run(i, 1300)
                 time.sleep(1)
-                self.servo_run(i, 1800)
+                self.servo_run(i, 1500)
                 time.sleep(1)
                 self.servo_stop(i)
                 flag_input = True
@@ -154,14 +154,14 @@ class Robot_pca(Pca):
         """Выключить все сервоприводы."""
         for i in range(self.count_servo):
             self.servo_stop(i)
-            time.sleep(1)
+            time.sleep(0.2)
 
 
     def full(self):
         """Робот запускает все сервоприводы."""
         for i in range(self.count_servo):
             self.servo_run(i, self.centers[i])     
-            time.sleep(1)
+            time.sleep(0.2)
     
     def servo_run_name(self, name: str, value: int):
         """
