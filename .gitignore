@@ -1,5 +1,4 @@
 __pycache__/
 .venv/
 calibration.csv
-define.pkl
 user_commands.pkl
