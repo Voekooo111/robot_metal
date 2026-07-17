@@ -121,27 +121,27 @@
 
             <map name="image-map">
 
-                <area href="#" onclick="addArea('hand_right_0'); return false;" title="hand_right_0" coords="80,298,224,206" shape="rect">
-                <area href="#" onclick="addArea('hand_right_1'); return false;" title="hand_right_1" coords="294,282,438,194" shape="rect">
-                <area href="#" onclick="addArea('hand_right_2'); return false;" title="hand_right_2" coords="493,266,594,118" shape="rect">
+                <area href="#" onclick="areaClick('hand_right_0', 'hand_0'); return false;" title="hand_right_0" coords="80,298,224,206" shape="rect">
+                <area href="#" onclick="areaClick('hand_right_1', 'hand_1'); return false;" title="hand_right_1" coords="294,282,438,194" shape="rect">
+                <area href="#" onclick="areaClick('hand_right_2', 'hand_2'); return false;" title="hand_right_2" coords="493,266,594,118" shape="rect">
 
-                <area href="#" onclick="addArea('hand_left_0'); return false;" title="hand_left_0" coords="1069,200,1204,292" shape="rect">
-                <area href="#" onclick="addArea('hand_left_1'); return false;" title="hand_left_1" coords="834,278,982,198" shape="rect">
-                <area href="#" onclick="addArea('hand_left_2'); return false;" title="hand_left_2" coords="696,261,803,132" shape="rect">
+                <area href="#" onclick="areaClick('hand_left_0', 'hand_0'); return false;" title="hand_left_0" coords="1069,200,1204,292" shape="rect">
+                <area href="#" onclick="areaClick('hand_left_1', 'hand_1'); return false;" title="hand_left_1" coords="834,278,982,198" shape="rect">
+                <area href="#" onclick="areaClick('hand_left_2', 'hand_2'); return false;" title="hand_left_2" coords="696,261,803,132" shape="rect">
 
-                <area href="#" onclick="addArea('leg_right_0'); return false;" title="leg_right_0" coords="492,997,622,1071" shape="rect">
-                <area href="#" onclick="addArea('leg_right_1'); return false;" title="leg_right_1" coords="495,973,604,902" shape="rect">
-                <area href="#" onclick="addArea('leg_right_2'); return false;" title="leg_right_2" coords="507,849,595,703" shape="rect">
-                <area href="#" onclick="addArea('leg_right_3'); return false;" title="leg_right_3" coords="597,546,499,694" shape="rect">
-                <area href="#" onclick="addArea('leg_right_4'); return false;" title="leg_right_4" coords="492,454,624,372" shape="rect">
+                <area href="#" onclick="areaClick('leg_right_0', 'leg_0'); return false;" title="leg_right_0" coords="492,997,622,1071" shape="rect">
+                <area href="#" onclick="areaClick('leg_right_1', 'leg_1'); return false;" title="leg_right_1" coords="495,973,604,902" shape="rect">
+                <area href="#" onclick="areaClick('leg_right_2', 'leg_2'); return false;" title="leg_right_2" coords="507,849,595,703" shape="rect">
+                <area href="#" onclick="areaClick('leg_right_3', 'leg_3'); return false;" title="leg_right_3" coords="597,546,499,694" shape="rect">
+                <area href="#" onclick="areaClick('leg_right_4', 'leg_4'); return false;" title="leg_right_4" coords="492,454,624,372" shape="rect">
 
-                <area href="#" onclick="addArea('leg_left_0'); return false;" title="leg_left_0" coords="663,1069,789,998" shape="rect">
-                <area href="#" onclick="addArea('leg_left_1'); return false;" title="leg_left_1" coords="678,965,786,901" shape="rect">
-                <area href="#" onclick="addArea('leg_left_2'); return false;" title="leg_left_2" coords="680,836,776,701" shape="rect">
-                <area href="#" onclick="addArea('leg_left_3'); return false;" title="leg_left_3" coords="681,689,775,542" shape="rect">
-                <area href="#" onclick="addArea('leg_left_4'); return false;" title="leg_left_4" coords="796,370,664,459" shape="rect">
+                <area href="#" onclick="areaClick('leg_left_0', 'leg_0'); return false;" title="leg_left_0" coords="663,1069,789,998" shape="rect">
+                <area href="#" onclick="areaClick('leg_left_1', 'leg_1'); return false;" title="leg_left_1" coords="678,965,786,901" shape="rect">
+                <area href="#" onclick="areaClick('leg_left_2', 'leg_2'); return false;" title="leg_left_2" coords="680,836,776,701" shape="rect">
+                <area href="#" onclick="areaClick('leg_left_3', 'leg_3'); return false;" title="leg_left_3" coords="681,689,775,542" shape="rect">
+                <area href="#" onclick="areaClick('leg_left_4', 'leg_4'); return false;" title="leg_left_4" coords="796,370,664,459" shape="rect">
 
-                <area href="#" onclick="addArea('head'); return false;" title="head" coords="610,132,669,5" shape="rect">
+                <area href="#" onclick="areaClick('head', 'head'); return false;" title="head" coords="610,132,669,5" shape="rect">
 
             </map>
 
@@ -445,6 +445,20 @@ if(textarea){
 
     });
 
+}
+let clickTimer = null;
+
+function areaClick(single, dbl) {
+    if (clickTimer) {
+        clearTimeout(clickTimer);
+        clickTimer = null;
+        addArea(dbl);
+    } else {
+        clickTimer = setTimeout(() => {
+            addArea(single);
+            clickTimer = null;
+        }, 250);
+    }
 }
 </script>
 
