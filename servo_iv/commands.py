@@ -121,6 +121,10 @@ class Commands:
                     pickle.dump(self.robot.body, file)
             else:
                 self.define()
+            
+        elif text in self.robot.body.keys():
+            self.chose_servo = text
+            self.site.messages.append(f"Выбран сервопривод: {text}")
 
         elif self._servo_define:
             self.site.messages.append("Завершите определение сервоприводов.")
