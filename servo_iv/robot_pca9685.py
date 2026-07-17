@@ -60,23 +60,27 @@ class Robot_pca(Pca):
         self.define_servo()
         self.calibrate()
 
+    def update_bodypart(self):
+        """Обновление budypart"""
+        self.bodypart = {
+            'hand': tuple(self.body[i] for i in self.body if i.startswith('hand')),
+            'leg': tuple(self.body[i] for i in self.body if i.startswith('leg')),
+            'hand_0': (self.body['hand_left_0'], self.body['hand_right_0']),
+            'hand_1': (self.body['hand_left_1'], self.body['hand_right_1']),
+            'hand_2': (self.body['hand_left_2'], self.body['hand_right_2']),
+            'leg_0': (self.body['leg_left_0'], self.body['leg_right_0']),
+            'leg_1': (self.body['leg_left_1'], self.body['leg_right_1']),
+            'leg_2': (self.body['leg_left_2'], self.body['leg_right_2']),
+            'leg_3': (self.body['leg_left_3'], self.body['leg_right_3']),
+            'leg_4': (self.body['leg_left_4'], self.body['leg_right_4']),
+        }
+
     def define_servo(self):
         """Определение сервопривода."""
         try:
             with open('define.pkl', mode='rb') as file:
                 self.body = pickle.load(file)
-            self.bodypart: dict[str, None | tuple] = {
-                'hand' : tuple(self.body[i] for i in self.body if i[0]=='h'), 
-                'leg' : tuple(self.body[i] for i in self.body if i[0]=='l'),
-                'hand_0': (self.body['hand_left_0'], self.body['hand_right_0']),
-                'hand_1': (self.body['hand_left_1'], self.body['hand_right_1']),
-                'hand_2': (self.body['hand_left_2'], self.body['hand_right_2']),
-                'leg_0' : (self.body['leg_left_0'], self.body['leg_right_0']),
-                'leg_1' : (self.body['leg_left_1'], self.body['leg_right_1']),
-                'leg_2' : (self.body['leg_left_2'], self.body['leg_right_2']),
-                'leg_3' : (self.body['leg_left_3'], self.body['leg_right_3']),
-                'leg_4' : (self.body['leg_left_4'], self.body['leg_right_4']),
-            }
+            self.update_bodypart()
 
         except FileNotFoundError:
             for i in range(self.count_servo):
@@ -96,18 +100,7 @@ class Robot_pca(Pca):
                     print("Попробуйте снова.")
             with open('define.pkl', mode='wb') as file:
                 pickle.dump(self.body, file)
-            self.bodypart: dict[str, None | tuple] = {
-                'hand' : tuple(self.body[i] for i in self.body if i[0]=='h'), 
-                'leg' : tuple(self.body[i] for i in self.body if i[0]=='l'),
-                'hand_0': (self.body['hand_left_0'], self.body['hand_right_0']),
-                'hand_1': (self.body['hand_left_1'], self.body['hand_right_1']),
-                'hand_2': (self.body['hand_left_2'], self.body['hand_right_2']),
-                'leg_0' : (self.body['leg_left_0'], self.body['leg_right_0']),
-                'leg_1' : (self.body['leg_left_1'], self.body['leg_right_1']),
-                'leg_2' : (self.body['leg_left_2'], self.body['leg_right_2']),
-                'leg_3' : (self.body['leg_left_3'], self.body['leg_right_3']),
-                'leg_4' : (self.body['leg_left_4'], self.body['leg_right_4']),
-            }
+            self.update_bodypart()
 
     
     def calibrate(self, skip_calibration=True):

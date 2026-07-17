@@ -113,6 +113,7 @@ class Commands:
             self.site.messages.append(f"Выбран сервопривод: {text}.")
             self.robot.servo_stop(self._servo_define)
             self.robot.body[text] = self._servo_define
+            self.robot.update_bodypart()
             if self._servo_define == 15:
                 self._servo_define = None
                 self.chose_servo = None
