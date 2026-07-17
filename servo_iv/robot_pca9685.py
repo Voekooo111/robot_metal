@@ -33,6 +33,7 @@ class Robot_pca(Pca):
             'leg_right_3' : None,
             'leg_right_4' : None,
         }
+        self.channal_to_body: dict[int, str] = {}
         self.bodypart: dict[str, None | tuple] = {
             'hand' : tuple(self.body[i] for i in self.body if i[0]=='h'), 
             'leg' : tuple(self.body[i] for i in self.body if i[0]=='l'),
@@ -49,11 +50,28 @@ class Robot_pca(Pca):
         self.centers = [1500] * count_servo
         self.flag_success_run = False
         self.flag_success_stop = False
-        if self.count_servo == 16:
-            self.servo_side = [-1, -1, 1, 1, 1, -1, -1, -1, 1, -1, 1, 1, 1, -1, 1, -1]
-        else:
-            self.servo_side = [1] * self.count_servo
         self.pwm = [None] * self.count_servo
+    
+    def servo_side(self, channal: int):
+        mapping: dict[str, int] = {
+            'hand_left_0': -1,
+            'hand_left_1': -1,
+            'hand_left_2': -1,
+            'hand_right_0': 1,
+            'hand_right_1': 1,
+            'hand_right_2': 1,
+            'leg_left_0': -1,
+            'leg_left_1': -1,
+            'leg_left_2': -1,
+            'leg_left_3': 1,
+            'leg_left_4': -1,
+            'leg_right_0': 1,
+            'leg_right_1': 1,
+            'leg_right_2': 1,
+            'leg_right_3': -1,
+            'leg_right_4': 1
+        }
+        return mapping.get(self.channal_to_body.get(channal))
     
     def class_start(self):
         """Преднастройка класса."""
@@ -74,6 +92,7 @@ class Robot_pca(Pca):
             'leg_3': (self.body['leg_left_3'], self.body['leg_right_3']),
             'leg_4': (self.body['leg_left_4'], self.body['leg_right_4']),
         }
+        self.channal_to_body = {value: key for key, value in self.body.items()}
 
     def define_servo(self):
         """Определение сервопривода."""
@@ -174,7 +193,7 @@ class Robot_pca(Pca):
             self.flag_success_run = False
         for b_n in body_num:
             self.pwm[b_n] = self.servo_run(b_n, 
-                    self.centers[b_n] + value * self.servo_side[b_n])
+                    self.centers[b_n] + value * self.servo_side(b_n))
 
     def servo_stop_name(self, name: str):
         """
