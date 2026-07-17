@@ -293,11 +293,11 @@ class Commands:
             self._servo_define = 0
         else:
             self._servo_define += 1
-        self.robot.servo_run(self._servo_define, 1500)
+        self.robot.servo_run(self._servo_define, 1800)
         time.sleep(0.6)
         self.robot.servo_run(self._servo_define, 1300)
         time.sleep(0.6)
-        self.robot.servo_run(self._servo_define, 1800)
+        self.robot.servo_run(self._servo_define, 1500)
         time.sleep(0.2)
         self.site.messages.append(f"Выберите сервопривод. {self._servo_define}/{self.robot.count_servo-1}.")
 
