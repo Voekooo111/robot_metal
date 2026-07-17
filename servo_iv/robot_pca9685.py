@@ -54,22 +54,22 @@ class Robot_pca(Pca):
     
     def servo_side(self, channal: int):
         mapping: dict[str, int] = {
-            'hand_left_0': -1,
-            'hand_left_1': -1,
+            'hand_left_0': 1,
+            'hand_left_1': 1,
             'hand_left_2': -1,
-            'hand_right_0': 1,
-            'hand_right_1': 1,
+            'hand_right_0': -1,
+            'hand_right_1': -1,
             'hand_right_2': 1,
             'leg_left_0': -1,
             'leg_left_1': -1,
             'leg_left_2': -1,
             'leg_left_3': 1,
-            'leg_left_4': -1,
+            'leg_left_4': 1,
             'leg_right_0': 1,
             'leg_right_1': 1,
             'leg_right_2': 1,
             'leg_right_3': -1,
-            'leg_right_4': 1
+            'leg_right_4': -1
         }
         return mapping.get(self.channal_to_body.get(channal))
     
