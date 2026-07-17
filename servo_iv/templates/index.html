@@ -243,7 +243,6 @@ function editUserButton(name){
 }
 
 function addArea(area){
-    alert(area);
     if(editor){
 
         const doc = editor.getDoc();
@@ -255,7 +254,13 @@ function addArea(area){
         console.log(JSON.stringify(line));
         console.log(line.slice(0, cursor.ch) + "|" + line.slice(cursor.ch));
 
-        doc.replaceRange(area, cursor);
+        const pos = doc.getCursor();
+        alert(
+            "line: [" + doc.getLine(pos.line) + "]\n" +
+            "cursor: " + pos.ch
+        );
+
+        doc.replaceRange(area, pos);
 
         editor.focus();
         return;
