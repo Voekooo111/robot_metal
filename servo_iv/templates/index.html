@@ -251,6 +251,10 @@ function addArea(area){
 
         const line = doc.getLine(cursor.line);
 
+        console.log(cursor);
+        console.log(JSON.stringify(line));
+        console.log(line.slice(0, cursor.ch) + "|" + line.slice(cursor.ch));
+
         doc.replaceRange(area, cursor);
 
         editor.focus();
