@@ -586,7 +586,6 @@ class Commands:
             tree = ast.parse(expr, mode="eval")
             return self._eval(tree.body)
         except SyntaxError as e:
-            self.site.messages.append(f"Expr: {expr}")
             self.site.messages.append(f"Синтаксическая ошибка: {e}")
 
         except Exception as e:
@@ -673,10 +672,7 @@ class Commands:
             raise Exception(f"Недопустимое выражение: {type(node)}")  
     
     def print_func(self, command):
-        self.site.messages.append(command)
-
         expr = " ".join(command[1:])
-        self.site.messages.append(f"expr = '{expr}'")
 
         value = self.eval_expr(expr)
 
@@ -685,6 +681,12 @@ class Commands:
 
     def assign(self, command):
         try:
+            if len(command) < 3:
+                return False
+
+            if command[1] not in ("=", "+=", "-=", "*=", "/=", "//=", "%=", "**="):
+                return False
+            
             name = command[0]
 
             if not name.isidentifier():
