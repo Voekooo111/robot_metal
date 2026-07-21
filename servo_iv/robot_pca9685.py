@@ -192,8 +192,9 @@ class Robot_pca(Pca):
         else:
             self.flag_success_run = False
         for b_n in body_num:
-            self.pwm[b_n] = self.servo_run(b_n, 
-                    self.centers[b_n] + value * self.servo_side(b_n))
+            pulse = self.centers[b_n] + value * self.servo_side(b_n)
+            self.servo_run(b_n, pulse)
+            self.pwm[b_n] = pulse
 
     def servo_stop_name(self, name: str):
         """
@@ -212,6 +213,7 @@ class Robot_pca(Pca):
             self.flag_success_stop = False
         for b_n in body_num:
             self.servo_stop(b_n)
+            self.pwm[b_n] = None
 
     def stand(self):
         """Робот должен встать с положения лёжа."""
