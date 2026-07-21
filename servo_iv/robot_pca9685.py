@@ -174,6 +174,14 @@ class Robot_pca(Pca):
         for i in range(self.count_servo):
             self.servo_run(i, self.centers[i])     
             time.sleep(0.2)
+
+    def servo_run(self, channel, pulse):
+        super().servo_run(channel, pulse)
+        self.pwm[channel] = pulse
+
+    def servo_stop(self, channel):
+        super().servo_stop(channel)
+        self.pwm[channel] = None
     
     def servo_run_name(self, name: str, value: int):
         """
@@ -194,7 +202,6 @@ class Robot_pca(Pca):
         for b_n in body_num:
             pulse = self.centers[b_n] + value * self.servo_side(b_n)
             self.servo_run(b_n, pulse)
-            self.pwm[b_n] = pulse
 
     def servo_stop_name(self, name: str):
         """
@@ -213,7 +220,6 @@ class Robot_pca(Pca):
             self.flag_success_stop = False
         for b_n in body_num:
             self.servo_stop(b_n)
-            self.pwm[b_n] = None
 
     def stand(self):
         """Робот должен встать с положения лёжа."""

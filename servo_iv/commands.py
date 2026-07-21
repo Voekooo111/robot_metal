@@ -344,13 +344,8 @@ class Commands:
         """Принудительная остановка процесса."""
         self._flag_calibration = False
         self._servo_define = None
-
-        # Сигнал всем циклам завершиться
         self.stop_execution = True
-
-        # Даём run()/wait()/while выйти
         time.sleep(0.05)
-
         try:
             self.robot.close()
         except Exception:
@@ -422,6 +417,7 @@ class Commands:
                 try:
                     if not run_i2c:
                         self.site.messages.append("Соединение I2C восстановлено.")
+                        self.site.messages.append(f"Значения сервоприводов: {self.robot.pwm}")
                         for ch, value in enumerate(self.robot.pwm):
                             if value is not None:
                                 self.robot.servo_run(ch, value)
