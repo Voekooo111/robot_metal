@@ -57,7 +57,7 @@ class Commands:
         self.stop_execution = False
         self.function_name_for_push = None
         self.function_body_for_push = None
-        self.variables = {}
+        self.variables = [{}]
 
         try:
             with open('user_commands.pkl', mode='rb') as file:
@@ -394,6 +394,15 @@ class Commands:
                 pickle.dump(self.user_commands, file)
         self._flag_create = False
 
+    def push_scope(self):
+        """Создать новую локальную область."""
+        self.variables.append({})
+
+    def pop_scope(self):
+        """Удалить текущую локальную область."""
+        if len(self.variables) > 1:
+            self.variables.pop()
+
     def multi_execute(self, commands: list[list[str]], reset_stop=True):
         """
         Выполняет несколько комманд.
@@ -470,7 +479,16 @@ class Commands:
         elif command[0] in self.default_commands:
             return self.default_commands[command[0]](command)
         elif command[0] in self.user_commands:
-            self.multi_execute(self.user_commands[command[0]], reset_stop=False)
+            self.push_scope()
+
+            try:
+                self.multi_execute(
+                    self.user_commands[command[0]],
+                    reset_stop=False
+                )
+            finally:
+                self.pop_scope()
+
             return True
         else:
             return False
@@ -645,8 +663,9 @@ class Commands:
                 return self.robot.pwm[servo]
             elif node.id in self.robot.bodypart:
                 return tuple(self.robot.pwm[servo] for servo in self.robot.bodypart[node.id])
-            elif node.id in self.variables:
-                return self.variables[node.id]
+            for scope in reversed(self.variables):
+                if node.id in scope:
+                    return scope[node.id]
             raise NameError(f"Переменная '{node.id}' не существует")
 
         elif isinstance(node, ast.BinOp):
@@ -697,26 +716,33 @@ class Commands:
             value = self.eval_expr(expr)
 
             if op == "=":
-                self.variables[name] = value
+                self.variables[-1][name] = value
 
             else:
-                if name not in self.variables:
+                scope = None
+
+                for s in reversed(self.variables):
+                    if name in s:
+                        scope = s
+                        break
+
+                if scope is None:
                     raise NameError(f"Переменная '{name}' не существует")
 
                 if op == "+=":
-                    self.variables[name] += value
+                    scope[name] += value
                 elif op == "-=":
-                    self.variables[name] -= value
+                    scope[name] -= value
                 elif op == "*=":
-                    self.variables[name] *= value
+                    scope[name] *= value
                 elif op == "/=":
-                    self.variables[name] /= value
+                    scope[name] /= value
                 elif op == "//=":
-                    self.variables[name] //= value
+                    scope[name] //= value
                 elif op == "%=":
-                    self.variables[name] %= value
+                    scope[name] %= value
                 elif op == "**=":
-                    self.variables[name] **= value
+                    scope[name] **= value
 
             return True
 
