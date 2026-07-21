@@ -462,8 +462,7 @@ class Commands:
         """ 
         if self.stop_execution:
             return False
-        if not command or command[0] == '#':
-            self.site.messages.append("")
+        if not command or command[0].startswith('#'):
             return True
         elif len(command) > 2 and command[1] in (
             "=", "+=", "-=", "*=", "/=", "//=", "%=", "**="
