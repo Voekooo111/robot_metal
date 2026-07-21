@@ -586,6 +586,7 @@ class Commands:
             tree = ast.parse(expr, mode="eval")
             return self._eval(tree.body)
         except SyntaxError as e:
+            self.site.messages.append(f"Expr: {expr}")
             self.site.messages.append(f"Синтаксическая ошибка: {e}")
 
         except Exception as e:
