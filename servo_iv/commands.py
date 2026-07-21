@@ -96,6 +96,10 @@ class Commands:
             print("self.default_btn_commands")
             self.site.messages.append(f"Запущена функция {text}")
             self.multi_execute([text.split()])
+        
+        elif self.assign(text.split()):
+            print("self.default_btn_commands")
+            self.site.messages.append(text)
 
         elif self._servo_define is None and len(text) > 1:
             if text.split()[0] in self.default_commands:
@@ -711,6 +715,5 @@ class Commands:
 
             return True
 
-        except Exception as e:
-            self.site.messages.append(f"Ошибка присваивания: {e}")
+        except Exception:
             return False
