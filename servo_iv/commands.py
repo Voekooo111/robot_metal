@@ -673,7 +673,10 @@ class Commands:
             raise Exception(f"Недопустимое выражение: {type(node)}")  
     
     def print_func(self, command):
+        self.site.messages.append(command)
+
         expr = " ".join(command[1:])
+        self.site.messages.append(f"expr = '{expr}'")
 
         value = self.eval_expr(expr)
 
