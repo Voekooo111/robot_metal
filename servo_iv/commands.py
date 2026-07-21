@@ -99,7 +99,6 @@ class Commands:
         
         elif self.assign(text.split()):
             print("self.default_btn_commands")
-            self.site.messages.append(text)
 
         elif self._servo_define is None and len(text) > 1:
             if text.split()[0] in self.default_commands:
