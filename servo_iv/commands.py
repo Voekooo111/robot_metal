@@ -441,7 +441,7 @@ class Commands:
                 i = self.if_func(command, commands, i)
             else:
                 if not self.execute(command):
-                    self.site.messages.append(command)
+                    self.site.messages.append(" ".join(command))
                     self.site.messages.append("^^^^Ошибка. Команда не найдена^^^^")
         return i + 1
             
@@ -470,7 +470,6 @@ class Commands:
             self.multi_execute(self.user_commands[command[0]], reset_stop=False)
             return True
         else:
-            self.site.messages.append("Ошибка. Команда не найдена.")
             return False
     
     def run(self, command):
@@ -674,8 +673,8 @@ class Commands:
 
         value = self.eval_expr(expr)
 
-        if value is not None:
-            self.site.messages.append(str(value))
+        self.site.messages.append(str(value))
+        return True
 
     def assign(self, command):
         try:
