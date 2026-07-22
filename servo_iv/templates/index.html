@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    {% if flag_create %}
     <link rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
@@ -14,6 +15,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/comment/comment.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/selection/active-line.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
+    {% endif %}
 </head>
 
 <body>
@@ -210,7 +212,8 @@
 <script>
 function scrollDown() {
     const box = document.getElementById("messages");
-    box.scrollTop = box.scrollHeight;
+    if (box)
+        box.scrollTop = box.scrollHeight;
 }
 
 window.onload = function () {
@@ -222,7 +225,8 @@ window.onload = function () {
     if(input)
         input.focus();
 
-    imageMapResize();
+    if (window.imageMapResize)
+        imageMapResize();
 };
 
 function deleteUserButton(buttonName){
@@ -267,6 +271,9 @@ function addArea(area){;
 }
 
 
+let editor = null;
+
+{% if flag_create %}
 const robotWords = {{ robot_words|tojson }};
 const robotParts = {{ robot_parts|tojson }};
 const robotBtnWords = {{ robot_btn_words|tojson }};
@@ -341,8 +348,6 @@ CodeMirror.defineMode("robot", function () {
     };
 });
 
-let editor = null;
-
 const textarea = document.getElementById("functionBody");
 
 if(textarea){
@@ -401,7 +406,8 @@ if(textarea){
     editor.refresh();
 
     setTimeout(() => {
-        imageMapResize();
+        if (window.imageMapResize)
+            imageMapResize();
     }, 500);
     
     function resizeMap(){
@@ -436,6 +442,8 @@ if(textarea){
     });
 
 }
+{% endif %}
+
 let clickTimer = null;
 
 function areaClick(single, dbl) {

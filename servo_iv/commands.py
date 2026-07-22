@@ -3,6 +3,8 @@ import csv
 import time
 import ast
 import operator
+import queue
+import threading
 import lgpio
 
 OPS = {
@@ -58,6 +60,12 @@ class Commands:
         self.function_name_for_push = None
         self.function_body_for_push = None
         self.variables = [{}]
+        self._robot_busy = False
+        self._stop_requested = False
+        self._busy_lock = threading.Lock()
+        self._task_queue = queue.Queue()
+        self._worker = threading.Thread(target=self._robot_worker, daemon=True)
+        self._worker.start()
 
         try:
             with open('user_commands.pkl', mode='rb') as file:
@@ -70,6 +78,90 @@ class Commands:
 
         except Exception:
             pass
+
+    @property
+    def robot_busy(self):
+        with self._busy_lock:
+            return self._robot_busy
+
+    def submit_robot_task(self, description, func, *args):
+        """Выполнить одну команду с роботом вне HTTP-обработчика.
+
+        Все исходные паузы движения остаются в вызываемой функции. Очередь
+        нужна только затем, чтобы браузер не ждал окончания движения.
+        """
+        with self._busy_lock:
+            if self._robot_busy:
+                self.site.messages.append("Робот занят. Дождитесь завершения текущей команды.")
+                return False
+            self._robot_busy = True
+        self.site.messages.append(f"Запущена команда: {description}.")
+        self._task_queue.put((func, args))
+        return True
+
+    def _robot_worker(self):
+        while True:
+            func, args = self._task_queue.get()
+            try:
+                func(*args)
+            except Exception as error:
+                self.site.messages.append(f"Ошибка выполнения команды: {error}")
+            finally:
+                # Сначала безопасно выключаем сервоприводы по запросу stop,
+                # затем разрешаем следующую команду.
+                if func == self.stop:
+                    self._stop_requested = False
+                elif self._stop_requested:
+                    self._stop_requested = False
+                    self.stop()
+                with self._busy_lock:
+                    self._robot_busy = False
+                self._task_queue.task_done()
+
+    def request_stop(self):
+        """Остановить текущий сценарий, не конкурируя с ним за I2C."""
+        self.stop_execution = True
+        self._stop_requested = True
+        if not self.robot_busy:
+            self.submit_robot_task("остановка", self.stop)
+        else:
+            self.site.messages.append("Остановка запрошена.")
+
+    def assign_defined_servo(self, name):
+        """Закончить текущий канал и показать следующий в одной задаче."""
+        channel = self._servo_define
+        if channel is None:
+            return
+        self.robot.servo_stop(channel)
+        self.robot.body[name] = channel
+        self.robot.update_bodypart()
+        if channel == self.robot.count_servo - 1:
+            self._servo_define = None
+            self.chose_servo = None
+            self.site.messages.append("Сервоприводы успешно определены.")
+            with open('define.pkl', mode='wb') as file:
+                pickle.dump(self.robot.body, file)
+            return
+        self.define()
+
+    def start_web_command(self, command):
+        """Запустить команду из браузера без блокировки страницы."""
+        name = command[0]
+        if name == "stop":
+            self.request_stop()
+        elif name == "define":
+            # Режим выбора включается до ответа браузеру, поэтому быстрый клик
+            # по изображению не будет принят как обычный выбор сервопривода.
+            if self.robot_busy:
+                self.site.messages.append("Робот занят. Дождитесь завершения текущей команды.")
+                return
+            self.prepare_define()
+            self.submit_robot_task(name, self.show_define_channel)
+        elif name in {"documentation", "calibration", "create", "clear"}:
+            # Эти действия не двигают робота и нужны интерфейсу сразу.
+            self.multi_execute([command])
+        else:
+            self.submit_robot_task(name, self.multi_execute, [command])
     
     # def area_click(self, area):
     #     self.chose_servo = area
@@ -92,19 +184,27 @@ class Commands:
     def post_query(self, text, function_name, function_body, btn, 
                    area, delete_ser_button, edit, action):
         """Post-запрос"""
+        text = text or ""
+        function_body = function_body or ""
+        if text == "stop" or btn == "stop":
+            self.request_stop()
+            return
+
         if self._servo_define is None and text in list(self.default_btn_commands) + list(self.user_commands):
             print("self.default_btn_commands")
             self.site.messages.append(f"Запущена функция {text}")
-            self.multi_execute([text.split()])
+            self.start_web_command(text.split())
+            return
         
         elif self.assign(text.split()):
             print("self.default_btn_commands")
+            return
 
         elif self._servo_define is None and len(text) > 1:
             if text.split()[0] in self.default_commands:
                 print("self.default_commands")
                 self.site.messages.append(text)
-                self.multi_execute([text.split()])
+                self.submit_robot_task(text.split()[0], self.multi_execute, [text.split()])
                 return None
 
         if text == "begin":
@@ -113,24 +213,22 @@ class Commands:
         
         elif self._servo_define is not None and text in self.robot.body.keys():
             # определение сервоприводов
+            if self.robot_busy:
+                self.site.messages.append("Дождитесь окончания движения текущего канала.")
+                return
             self.site.messages.append(f"Выбран сервопривод: {text}.")
-            self.robot.servo_stop(self._servo_define)
-            self.robot.body[text] = self._servo_define
-            self.robot.update_bodypart()
-            if self._servo_define == 15:
-                self._servo_define = None
-                self.chose_servo = None
-                self.site.messages.append("Сервоприводы успешно определены.")
-                with open('define.pkl', mode='wb') as file:
-                    pickle.dump(self.robot.body, file)
-            else:
-                self.define()
+            self.submit_robot_task(
+                f"определение канала {self._servo_define}",
+                self.assign_defined_servo,
+                text,
+            )
+            return
             
         elif text in self.robot.body.keys():
             self.chose_servo = text
             self.site.messages.append(f"Выбран сервопривод: {text}")
 
-        elif self._servo_define:
+        elif self._servo_define is not None:
             self.site.messages.append("Завершите определение сервоприводов.")
             self.site.messages.append(f"{text} отсутствует.")
 
@@ -151,7 +249,7 @@ class Commands:
 
         elif self._flag_calibration and text:
             print("калибровка")
-            self.try_calibration(text)
+            self.submit_robot_task("калибровка", self.try_calibration, text)
             
         elif delete_ser_button:
             print("удаление")
@@ -179,7 +277,7 @@ class Commands:
 
         elif btn in list(self.default_btn_commands) + list(self.user_commands):
             self.site.messages.append(f"Запущена функция {btn}")
-            self.multi_execute([btn.split()])
+            self.start_web_command(btn.split())
 
         elif btn:
             print("btn пролет")
@@ -292,11 +390,19 @@ class Commands:
 
     def define(self):
         """Определить сервопривод как канал."""
+        self.prepare_define()
+        self.show_define_channel()
+
+    def prepare_define(self):
+        """Перейти к следующему каналу определения."""
         self._flag_calibration = False
         if self._servo_define is None:
             self._servo_define = 0
         else:
             self._servo_define += 1
+
+    def show_define_channel(self):
+        """Показать текущий канал, сохраняя безопасные паузы сервопривода."""
         self.robot.servo_run(self._servo_define, 1800)
         time.sleep(0.6)
         self.robot.servo_run(self._servo_define, 1300)
@@ -408,33 +514,44 @@ class Commands:
         if reset_stop:
             self.stop_execution = False
         i = 0
+        recovery_attempts = 0
 
         while i < len(commands):
-            run_i2c = True
-            while True:
+            if self.stop_execution:
+                return
+            try:
+                i = self.multi_execute_in(commands, i)
+                recovery_attempts = 0
+            except lgpio.error:
                 if self.stop_execution:
                     return
-                try:
-                    if not run_i2c:
-                        self.site.messages.append("Соединение I2C восстановлено.")
-                        self.site.messages.append(f"Значения сервоприводов: {self.robot.pwm}")
-                        for ch, value in enumerate(self.robot.pwm):
-                            if value is not None:
-                                self.robot.servo_run(ch, value)
-                            else:
-                                self.robot.servo_stop(ch)
-                            time.sleep(0.2)
-                    i = self.multi_execute_in(commands, i)
-                    break
-                except lgpio.error:
-                    if self.stop_execution:
-                        return
+                recovery_attempts += 1
+                if recovery_attempts == 1:
+                    self.site.messages.append("Потеряно соединение I2C. Выполняется переподключение.")
+                if recovery_attempts > 8:
+                    self.site.messages.append("Не удалось восстановить I2C. Команда остановлена.")
+                    return
+                time.sleep(0.2)
+                if not self.restore_i2c():
+                    continue
 
-                    if run_i2c:
-                        self.site.messages.append("Потеряно соединение I2C.")
-                        run_i2c = False
-                    else:
-                        time.sleep(0.2)
+    def restore_i2c(self):
+        """Переподключить PCA9685 и вернуть сохранённые значения PWM."""
+        try:
+            self.robot.close()
+            self.robot.connect()
+            self.robot.setting()
+            for ch, value in enumerate(self.robot.pwm):
+                if value is not None:
+                    self.robot.servo_run(ch, value)
+                else:
+                    self.robot.servo_stop(ch)
+                # Сохраняем исходную безопасную паузу между каналами.
+                time.sleep(0.2)
+            self.site.messages.append("Соединение I2C восстановлено.")
+            return True
+        except lgpio.error:
+            return False
 
     def multi_execute_in(self, commands, i):
         if self.stop_execution:

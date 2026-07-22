@@ -1,3 +1,5 @@
+from collections import deque
+
 from flask import Flask, render_template, request, redirect, url_for
 
 
@@ -5,8 +7,9 @@ class Site:
     """Страничка в локальном интернете."""
     def __init__(self, ):
         self.app = Flask(__name__)
-        self.messages = []
-        self.debug = True
+        # Журнал целиком рендерится на каждой странице, поэтому ограничиваем
+        # его размер, чтобы интерфейс не замедлялся после долгой работы.
+        self.messages = deque(maxlen=300)
 
         self.app.add_url_rule(
             "/",
@@ -49,7 +52,9 @@ class Site:
         
         return render_template(
             "index.html",
-            message = self.messages,
+            # Поток управления роботом может дописать журнал во время
+            # рендеринга; передаём шаблону неизменяемый снимок списка.
+            message = list(self.messages),
             buttons = list(self.commands.default_btn_commands),
             user_buttons = list(self.commands.user_commands),
             flag_calibration = self.commands._flag_calibration,
@@ -63,7 +68,9 @@ class Site:
 
     def run(self):
         """Запуск сайта."""
-        self.app.run(host="0.0.0.0", port=5000, debug=True)
+        # Reloader в debug-режиме создаёт второй процесс. Для единственного
+        # I2C-устройства это небезопасно.
+        self.app.run(host="0.0.0.0", port=5000, debug=False, threaded=True)
 
 if __name__ == "__main__":
     site = Site()
