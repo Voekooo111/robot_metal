@@ -84,7 +84,7 @@ class Commands:
         with self._busy_lock:
             return self._robot_busy
 
-    def submit_robot_task(self, description, func, *args):
+    def submit_robot_task(self, _description, func, *args):
         """Выполнить одну команду с роботом вне HTTP-обработчика.
 
         Все исходные паузы движения остаются в вызываемой функции. Очередь
@@ -95,7 +95,6 @@ class Commands:
                 self.site.messages.append("Робот занят. Дождитесь завершения текущей команды.")
                 return False
             self._robot_busy = True
-        self.site.messages.append(f"Запущена команда: {description}.")
         self._task_queue.put((func, args))
         return True
 
@@ -528,7 +527,7 @@ class Commands:
                 recovery_attempts += 1
                 if recovery_attempts == 1:
                     self.site.messages.append("Потеряно соединение I2C. Выполняется переподключение.")
-                if recovery_attempts > 8:
+                if recovery_attempts > 3:
                     self.site.messages.append("Не удалось восстановить I2C. Команда остановлена.")
                     return
                 time.sleep(0.2)
